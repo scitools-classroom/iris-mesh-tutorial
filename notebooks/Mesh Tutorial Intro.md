@@ -45,14 +45,14 @@ whenever something seems to be taking a long time with no result...
       but note :
         1. this will destroy the entire session :  you need to rerun all notebook cells from the start again
         2. after resetting, **do not attempt anything further** until the kernel state shows "idle" again
-   3. sometimes gets *really* stuck
-      - e.g. after restart, kernel status persists in "connecting" / "restarting" state
-      then *close* the JupyterLab window + restart
+   3. sometimes gets *really* stuck  
+      -- e.g. after restart, kernel status persists in "connecting" / "restarting" state  
+      In such cases, *close* the JupyterLab window + restart
       * i.e. `$ jupyter-lab`
 
 
 ---
-Create generally useful imports
+Import some generally useful packages
 
 ```python
 from geovista.pantry import um_orca2
@@ -85,10 +85,14 @@ Simple Pyvista testcase
 how to organise / sectionalise / navigate the tutorial ?
 
 ### 1. Links to other notebooks
-["trial" notebook](./trial.ipynb)
+can do like this : ["trial" notebook](./trial.ipynb)  
+ - this may be quite useful for "extra content" or "bonus material"
 
 ### 2. TOC provision
-TBD, not yet tried.  See : https://github.com/jupyterlab/jupyterlab-toc#readme
+<s>TBD, not yet tried.  See : https://github.com/jupyterlab/jupyterlab-toc#readme</s>  
+This is now a _standard_ feature of JupyterLab  
+  - hit the "bullet list" looking icon (tooltip note "Table of Contents") 
+  - on the lhs of the lab window (*not* the notebook pane)
 
 
 ## Reference : terminology (probably, a separate linked glossary ??)
@@ -97,6 +101,7 @@ TBD, not yet tried.  See : https://github.com/jupyterlab/jupyterlab-toc#readme
   * mesh
   * unstructured
   * ugrid
+  * xios
   * VTK
   * geovista
   * pyvista
@@ -119,10 +124,15 @@ E.G. (a) "how can you tell this is mesh data ?". (b) "
 
   1. Iris existing features, ***extended***
      * cf Iris docs : https://scitools-iris.readthedocs.io/en/stable/further_topics/ugrid/operations.html#working-with-mesh-data
+     * assume basic Iris knowledge (but maybe no more)
+        * but would like to focus initially on LFRic, not UM ?
      * BASICS ..
        * loading
+          * BRIEFLY show UM/structured loading
+          * then LFRic -- highlight differences
        * printing (cubes)
           * beginnings of questions
+          * cube.mesh, cube.mesh_dim ?
        * saving
 
   1. plotting
@@ -130,25 +140,31 @@ E.G. (a) "how can you tell this is mesh data ?". (b) "
      * 2d plots (projections)
 
   1. Exploring / comparing UM and LFRIc data
+       * "back out" to details of the differences
+          * ?MAYBE? split extra info from this section to the 2nd session (post 1st hour)
        * cube printouts -- similarity + difference
        * regridding
+         * cf Iris docs : https://scitools-iris.readthedocs.io/en/stable/further_topics/ugrid/operations.html#regridding  
+           (expand the example code section)
+         * Iris support (extended existing features)
+         * iris-esmf-regrid
        * side-by-side inspection (linked 3d plots)
+
+  1. ??first hour finishes here ??
 
   1. region extraction
      * cf Iris docs : https://scitools-iris.readthedocs.io/en/stable/further_topics/ugrid/operations.html#region-extraction  
        (expand the example code section)
 
-  1. working with connectivity (API)
-
-  1. regridding
-     * cf Iris docs : https://scitools-iris.readthedocs.io/en/stable/further_topics/ugrid/operations.html#regridding  
-       (expand the example code section)
-     * Iris support (extended existing features)
-     * iris-esmf-regrid
-
   1. zonal means via regridding
+     * possibly BONUS material?
      * cf : https://iris-esmf-regrid.readthedocs.io/en/latest/_api_generated/esmf_regrid.experimental.unstructured_scheme.html#esmf_regrid.experimental.unstructured_scheme.MeshToGridESMFRegridder  
        look at : `latitude`
+       
+  1. working with connectivity (API)
+     * possibly BONUS material?
+
+
 <!-- #endregion -->
 
 ```python
