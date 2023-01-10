@@ -7,3 +7,6 @@ dependencies:
   - geovista
   - jupyterlab
   - ipyvtklink
+  - jupytext
+  - pre-commit
+
