@@ -113,3 +113,8 @@ Jupytext is still WIP
 
 
   
+============
+Installed support for jupytext
+ - plus pre-commit
+N.B. require to configure the env post-create with "pre-commit install"
+

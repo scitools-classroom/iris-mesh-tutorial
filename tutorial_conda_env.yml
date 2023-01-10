@@ -8,3 +8,5 @@ dependencies:
   - jupyterlab
   - ipyvtklink
   - jupytext
+  - pre-commit
+
