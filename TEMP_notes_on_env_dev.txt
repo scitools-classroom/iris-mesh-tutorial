@@ -1,0 +1,115 @@
+Initially from "tutorial_conda_env.yml"
+    - containing **ONLY**
+        channels: 
+          - conda-forge
+        dependencies:
+          - python=3.9
+          - iris
+          - geovista
+          - jupyterlab
+
+    
+TRIAL WORKAROUND FOR PERMS PROBLEM
+---
+    $ conda create -n tmp iris
+        ==> FAILS ...
+
+        Collecting package metadata (current_repodata.json): failed
+        CondaSSLError: Encountered an SSL error. Most likely a certificate verification issue.
+        Exception: HTTPSConnectionPool(host='metoffice.jfrog.io', port=443): 
+            Max retries exceeded with url: /metoffice/api/conda/conda-forge/linux-64/current_repodata.json 
+            (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self signed certificate in certificate chain (_ssl.c:1129)')))
+
+    $ export REQUESTS_CA_BUNDLE='/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+    $ export AWS_CA_BUNDLE='/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+    $ export SSL_CERT_FILE='/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem'
+    $ conda create -n tmp iris
+        ==> O.K.
+
+TRY CREATE 
+    $ conda env create -f tutorial_conda_env.yml
+        ==> ABORTED AS V SLOW
+        
+
+    $ conda activate mamba    
+    $ mamba env create -f tutorial_conda_env.yml 
+        ==> FAIL AS PERMS ISSUE NOT FIXED FOR MAMBA ?
+
+        # >>>>>>>>>>>>>>>>>>>>>> ERROR REPORT <<<<<<<<<<<<<<<<<<<<<<
+
+            Traceback (most recent call last):
+              File "/tmp/persistent/newconda-envs/mamba/lib/python3.11/site-packages/conda/exceptions.py", line 1129, in __call__
+                return func(*args, **kwargs)
+                       ^^^^^^^^^^^^^^^^^^^^^
+              File "/tmp/persistent/newconda-envs/mamba/lib/python3.11/site-packages/conda_env/cli/main.py", line 80, in do_call
+                exit_code = getattr(module, func_name)(args, parser)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              File "/tmp/persistent/newconda-envs/mamba/lib/python3.11/site-packages/conda/notices/core.py", line 72, in wrapper
+                return_value = func(*args, **kwargs)
+                               ^^^^^^^^^^^^^^^^^^^^^
+              File "/tmp/persistent/newconda-envs/mamba/lib/python3.11/site-packages/conda_env/cli/main_create.py", line 156, in execute
+                result[installer_type] = installer.install(prefix, pkg_specs, args, env)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              File "/tmp/persistent/newconda-envs/mamba/lib/python3.11/site-packages/mamba/mamba_env.py", line 55, in mamba_install
+                index = load_channels(pool, channel_urls, repos, prepend=False)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+              File "/tmp/persistent/newconda-envs/mamba/lib/python3.11/site-packages/mamba/utils.py", line 129, in load_channels
+                index = get_index(
+                        ^^^^^^^^^^
+              File "/tmp/persistent/newconda-envs/mamba/lib/python3.11/site-packages/mamba/utils.py", line 110, in get_index
+                is_downloaded = dlist.download(api.MAMBA_DOWNLOAD_FAILFAST)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            RuntimeError: Download error (60) SSL peer certificate or SSH remote key was not OK [https://metoffice.jfrog.io/metoffice/api/conda/conda-forge/noarch/repodata.json]
+            SSL certificate problem: self-signed certificate in certificate chain
+
+    $ conda env create -f tutorial_conda_env.yml
+        ==> SLOW BUT SUCCEEDS
+
+COMPARE WITH LOCKFILE IN geovista [main]
+    ==> ~equiv (via: sort, and lots of fiddling for different output formats betw conda-lock and conda list --explicit)
+
+((IDEA: from Martin, have a util that will generalise lockfile content.))
+
+
+TRY JUPYTER LAB>NOTEBOOKS
+    ==> not present, as install has not functioned ??
+
+PIP INSTALL JUPYTERLAB
+    ==> FUNCTIONS
+        - created "trial.ipynb"
+        - BUT needed to restart env ??
+        - produces rendered output BUT not interactive
+
+Bring in bits from old ngvat notebooks
+     - e.g. : /project/avd/ng-vat/notebooks/ng-vat-v0.2/plotting/NG-VAT-v0p2-pyvista.ipynb
+
+NOW ADDED ipyvtklink
+    $ conda install ipyvtklink
+        ==> lots of additional packages (but none changed ??)
+
+    ==> OK, wkg w interactive context
+
+
+=========================
+
+Retried (now with success ??)
+    - web-proxy env fixes
+    - $ conda activate mamba
+    - $ mamba env create [[--name tmp]] --file tutorial_conda_env.yml
+    - $ cd ~/git/geovista
+    - $ pip install -e .
+
+
+Tuesday best guessing the provision + versinos specs
+  - thinking about providing a **pinned spec**, rather tahn a lockfile
+  - not least since the lock approach (or even 'conda list --explicit') provides specifics of the urls
+    - which messes up the reusability since locally they are all jfrog-based
+    - (we **want** just conda-forge as a channel, plus suitable package versions)
+    
+thinking about linking + TOCs
+  -- one of these will work
+
+Jupytext is still WIP
+
+
+  
