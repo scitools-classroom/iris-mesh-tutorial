@@ -58,7 +58,10 @@ Import some generally useful packages
 from geovista.pantry import um_orca2
 import geovista.theme
 
-import iris
+# NOTE: some random changes : to check Jupytext automation
+import iris as ir
+
+import numpy as np
 ```
 
 ---
@@ -168,7 +171,7 @@ E.G. (a) "how can you tell this is mesh data ?". (b) "
 <!-- #endregion -->
 
 ```python
-
+# NOTE: some random changes : to check Jupytext automation
 ```
 
 ```python
