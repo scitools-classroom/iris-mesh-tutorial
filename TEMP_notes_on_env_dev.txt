@@ -106,23 +106,79 @@ Tuesday best guessing the provision + versinos specs
     - which messes up the reusability since locally they are all jfrog-based
     - (we **want** just conda-forge as a channel, plus suitable package versions)
     
-thinking about linking + TOCs
-  -- one of these will work
-
-Jupytext is still WIP
-
-
   
 ============
 Installed support for jupytext
  - plus pre-commit
 N.B. require to configure the env post-create with "pre-commit install"
+
+
+N.B. as Martin suspected, you **do** need to commit twice ...
+        $ git commit -am "Meaningless notebook edits to check automation."
+        jupytext.................................................................Failed
+        - hook id: jupytext
+        - exit code: 1
+        - files were modified by this hook
+
+        [jupytext] Reading notebooks/Mesh Tutorial Intro.ipynb in format ipynb
+        [jupytext] Updating 'notebooks/Mesh Tutorial Intro.md'
+        [jupytext] Error: the git index is outdated.
+        Please add the paired notebook with:
+            git add 'notebooks/Mesh Tutorial Intro.md'
+
+
+        
+        $ git status
+        On branch meeting1_tweaks
+        Changes to be committed:
+          (use "git restore --staged <file>..." to unstage)
+	        modified:   notebooks/Mesh Tutorial Intro.ipynb
+
+        Changes not staged for commit:
+          (use "git add <file>..." to update what will be committed)
+          (use "git restore <file>..." to discard changes in working directory)
+	        modified:   notebooks/Mesh Tutorial Intro.md
+
+        Untracked files:
+          (use "git add <file>..." to include in what will be committed)
+	        conda_list.txt
+
+
+        $ git commit -am "Meaningless notebook edits to check automation."
+        jupytext.................................................................Passed
+        [meeting1_tweaks cdedf25] Meaningless notebook edits to check automation.
+         2 files changed, 12 insertions(+), 4 deletions(-)
+
+        $ 
+
+
 =======
 
 
-==========
-Examples + answers
-  - delivery methods (hide/reveal) ??
+To create a shareable lock file
+-------------------------------
+(ASIDE:
+    First created $ conda create -n ssstack ssstack
+     - pulls in conda, conda-lock etc with the ssstack tools (from the "conda-mo-internal" channel)
+    Unfortunately this is now not working due to latest version of "packaging" package
+        - needs version pinning to packaging=21
+)
+So, to get Iris-style lockfiles (from conda-lock -k explicit), this works...
+    $ conda create -n ssstack-env ssstack packaging=21
+        [[NOTE: tried to include 'mamba' here, but it seems to cause trouble ATM ?]]
+    $ conda activate ssstack-env
+    $ cd ~/git/iris-mesh-tutorial
+    $ conda-lock lock --kind explicit --platform linux-64 --file tutorial_conda_env.yml
+        [[NOTE: output --> conda-lock.yml]]
+        [[NOTE: '--mamba' might be useful here, but for now we seems to managing without]]
+    $ ssstack shareable conda-linux-64.lock >tutorial_conda_env_resolved.lock
+    $ rm conda-linux-64.lock
 
-Bonus material
+
+To create a test env
+--------------------
+$ conda create -n mesh-tutorial -f tutorial_conda_env_resolved.lock
+-- this FAILED somehow, for reasons I don't get.
+- but did subsequently work both in main (base) conda, and with 'ssstack-env' activated.
+When correct this is **fast**, avoiding a resolution step.  It didn't seems to work properly with mamba anyway ? (needed to re-download everything)
 
