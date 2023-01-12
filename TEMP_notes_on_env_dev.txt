@@ -100,12 +100,14 @@ Retried (now with success ??)
     - $ pip install -e .
 
 
-Tuesday best guessing the provision + versinos specs
-  - thinking about providing a **pinned spec**, rather tahn a lockfile
+Tuesday best guessing the provision + version specs
+  - thinking about providing a **pinned spec**, rather than a lockfile ?
   - not least since the lock approach (or even 'conda list --explicit') provides specifics of the urls
     - which messes up the reusability since locally they are all jfrog-based
     - (we **want** just conda-forge as a channel, plus suitable package versions)
-    
+
+BUT N.B. Martin points out that "ssstack" tools has a utility to mod lockfiles for external shareability    
+
   
 ============
 Installed support for jupytext
@@ -154,6 +156,7 @@ N.B. as Martin suspected, you **do** need to commit twice ...
 
 =======
 
+Weds 11 Jan
 
 To create a shareable lock file
 -------------------------------
@@ -182,3 +185,50 @@ $ conda create -n mesh-tutorial -f tutorial_conda_env_resolved.lock
 - but did subsequently work both in main (base) conda, and with 'ssstack-env' activated.
 When correct this is **fast**, avoiding a resolution step.  It didn't seems to work properly with mamba anyway ? (needed to re-download everything)
 
+
+=================
+Thurs 12 Jan
+??? but ??? above-derived env does not work well with JupyterLab : not connecting to kernels correctly 
+
+So, see if this delivers same packages as "just" creating an env
+conda create -n resolver --channel conda-forge mamba conda-lock
+    [Note: reportedly, mamba only works with channel=conda-forge ATM]
+
+test in this env ... 
+~WORKING (as it was "working" Mon/Tue-morning : new notebooks take a while + sometimes require a kernel restart ?)
+
+Tried making as a lock file...
+$ conda activate resolver
+$ mamba lock --kind explicit --platform linux-64 --file tutorial_conda_env.yml
+    result of this does NOT match the directly-created env for some reason 
+    - it includes packages directly loaded from conda-forge (not via jfrog)
+    - has fewer packages : missing some, 
+        - appears to have "/linux-64/vtk-9.2.5-egl_py39hbe1bc6b_1.tar.bz2" in place of "/linux-64/vtk-9.2.5-qt_py39h1a3df09_201.tar.bz2"
+        - yet both have "/noarch/qtpy-2.3.0-pyhd8ed1ab_0.tar.bz2" AND "/noarch/ipyvtklink-0.2.3-pyhd8ed1ab_0.tar.bz2" 
+  
+
+[
+NOTE: also checked yesterday that conda- and mamba-resolved envs with this spec **ARE** ~identical
+(v small change, could be new package)
+
+This means mamba *is* advised, because otherwise we are taking ages + chewing swapfile
+  - but it seems best to avoid conda-lock altogether, for now ??
+]
+    
+So now proceeding ... Use mamba to create an env *directly*, but don't use conda lock.  Then "list --explicit" and "sstack shareable" for the lockfile.
+
+
+New process is now like this ...
+--------------------------------
+    $ conda create --name resolver --channel conda-forge mamba conda-lock
+    $ conda activate resolver
+    $ cd ~/git/iris-mesh-tutorial
+    $ mamba env create --name meshtut --file tutorial_conda_env.yml
+    $ conda list --explicit >tmp_condalist.txt
+        [ from above..
+          $ conda create -n ssstack-env ssstack packaging=21
+        ]
+    $ conda activate ssstack-env
+    $ ssstack shareable tmp_condalist.txt >
+
+N.B. using "list --explicit" instead of conda-lock, we no longer have SHAs in the lockfile entries -- but all ~identical otherwise.
