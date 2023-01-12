@@ -232,3 +232,7 @@ New process is now like this ...
     $ ssstack shareable tmp_condalist.txt >
 
 N.B. using "list --explicit" instead of conda-lock, we no longer have SHAs in the lockfile entries -- but all ~identical otherwise.
+Test recreation ...
+    $ conda create -n meshtut_lockfile_recreate --file tutorial_conda_env_resolved.lock
+        [NOTE: do not use "-f" in place of "--file" : DOES NOT WORK !!]
+This does NOT resolve, but does (re-)download all packages, so still takes a while 
