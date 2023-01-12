@@ -1,2 +1,4 @@
 # Always pair ipynb notebooks to md files
-formats = "ipynb,md"
+[formats]
+"notebooks/" = "ipynb"
+"notebooks/notebook_shadowing_copies/" = "md"
