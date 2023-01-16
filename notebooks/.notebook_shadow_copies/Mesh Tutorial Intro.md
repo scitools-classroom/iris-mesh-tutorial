@@ -27,6 +27,13 @@ import pyvista as pv
 pv.rcParams["use_ipyvtk"] = True
 ```
 
+# Developing content ...
+See schedule of sections [below](#TOPICS-LIST?)
+
+Separate section notebooks (for now) ...
+[Initial Loading notebook](./Sec_01_Load_and_Examine.ipynb)
+
+
 # Important : use + stability of notebooks
 
 A good deal of the content relies on code which is still experimental.
