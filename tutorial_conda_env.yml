@@ -9,4 +9,5 @@ dependencies:
   - ipyvtklink
   - jupytext
   - pre-commit
+  - ugrid-checks
 
