@@ -10,5 +10,4 @@ dependencies:
   - jupytext
   - pre-commit
   - ugrid-checks
-  - iris-esmf-regrid
-  - esmpy=8.3
+

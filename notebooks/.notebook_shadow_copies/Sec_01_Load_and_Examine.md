@@ -29,6 +29,10 @@ datadir.exists()
 ```
 
 ```python
+# !ncdump -h /scratch/sworsley/lfric_data/latlon_surface.nc | head -n 100
+```
+
+```python
 !ncdump -h /scratch/sworsley/lfric_data/20210324T0000Z_lf_ugrid.nc | head -n 100
 ```
 

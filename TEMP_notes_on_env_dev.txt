@@ -256,7 +256,7 @@ Latest overall plan :
 
     #3 plotting
         2D mpl
-        3D ctk
+        3D vtk
         2D vtk
 
 
