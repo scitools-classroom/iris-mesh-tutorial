@@ -5,7 +5,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.4
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -27,6 +27,15 @@ datadir.exists()
 ```python
 %ls -1l {datadir}
 ```
+
+```python
+!ncdump -h /scratch/sworsley/lfric_data/20210324T0000Z_lf_ugrid.nc | head -n 100
+```
+
+## Relationship to existing Iris usage
+
+Much the same ...
+
 
 ```python
 import iris
@@ -152,14 +161,7 @@ print("cube.mesh_dim() = ", lfric_rh.mesh_dim())
 
 ## Exercise: identifying mesh data
 **How, in your code, could you check whether a cube has structured or mesh-based data ?**
-<!-- #endregion -->
 
-```python tags=[]
-# (space for user commands)
-#  . . .
-```
-
-<!-- #region tags=[] -->
 ---
 
 <details><summary><b>Sample code solution :</b> "check whether cube has structured data ?" <b>click to reveal</b></summary>
