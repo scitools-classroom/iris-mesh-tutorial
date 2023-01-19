@@ -236,3 +236,40 @@ Test recreation ...
     $ conda create -n meshtut_lockfile_recreate --file tutorial_conda_env_resolved.lock
         [NOTE: do not use "-f" in place of "--file" : DOES NOT WORK !!]
 This does NOT resolve, but does (re-)download all packages, so still takes a while 
+
+
+=====================
+Tue 17 
+Latest overall plan :
+    #1 basics/concepts
+    #2 load+print
+    #3 plotting
+    #4 UM+LFric compared
+        = regrid
+    ---
+    side-by-side plots
+    #6 region extract
+    #7 zonal means
+
+    #8 connectivity (bonus)
+
+
+    #3 plotting
+        2D mpl
+        3D vtk
+        2D vtk
+
+
+    initial 
+    #1(2) basics/context
+        mesh concepts
+            --> Iris docs links
+        UGRID, and LFRic (XIOS)
+
+    2 load+print
+    1 mesh basics/concepts (+ a bit plotting)
+    3 plotting
+    4 UM+LFric compared
+        - and regrid
+
+

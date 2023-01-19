@@ -5,7 +5,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.0
+      jupytext_version: 1.14.4
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -20,14 +20,7 @@ jupyter:
 Some important initial setup (always do first) ..
 <!-- #endregion -->
 
-```python
-# Make PyVista (VTK 3d output) appears an interactive window in the notebook.
-# (NOTE: without this, VTK output appears as static embedded images)
-import pyvista as pv
-pv.rcParams["use_ipyvtk"] = True
-```
-
-# Important : use + stability of notebooks
+## Important : use + stability of notebooks
 
 A good deal of the content relies on code which is still experimental.
 We must expect that there are various outstanding problems, and things sometimes crash.
@@ -52,50 +45,10 @@ whenever something seems to be taking a long time with no result...
 
 
 ---
-Import some generally useful packages
-
-```python
-from geovista.pantry import um_orca2
-import geovista.theme
-
-# NOTE: some random changes : to check Jupytext automation
-import iris as ir
-
-import numpy as np
-```
-
----
-
-# **EXAMPLES OF FORMAT**
-
-Some ideas of how we may present...  
-And (later) a **list of topics for discussion** ...
-
-
-
-# 3D visualisation
-
-While LFRic data can be presented in 2D plots with a map projection, it is often more profitable way to explore it with a 3D viewer.  
-
-There are a few reasons for this :
-  1. the LFRic model grid does not follow a 2d, lat-lon aligned structure (unlike UM)
-  2. LFRic data is now tending to be too large for matplotlib-style plotting (~6 million cells)
-
-Simple Pyvista testcase
-
-
-# Ongoing structure question
-how to organise / sectionalise / navigate the tutorial ?
-
-### 1. Links to other notebooks
-can do like this : ["trial" notebook](./trial.ipynb)  
- - this may be quite useful for "extra content" or "bonus material"
-
-### 2. TOC provision
-<s>TBD, not yet tried.  See : https://github.com/jupyterlab/jupyterlab-toc#readme</s>  
-This is now a _standard_ feature of JupyterLab  
-  - hit the "bullet list" looking icon (tooltip note "Table of Contents") 
-  - on the lhs of the lab window (*not* the notebook pane)
+## Tutorial sections : --> individual notebooks
+   * [01 - Load and Examine some LFRic data](./Sec_01_Load_and_Examine.ipynb)
+   * [02 - Mesh concepts and Meshes in Iris](./Sec_02_Meshes.ipynb)
+   * [03 - Plotting and Visualisation](./Sec_03_Plotting.ipynb)
 
 
 ## Reference : terminology (probably, a separate linked glossary ??)
