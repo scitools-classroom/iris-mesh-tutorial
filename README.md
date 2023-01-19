@@ -39,3 +39,16 @@ $ jupyter lab
 ```
 A window should then appear in your browser.  
 Failing that, visit one of the urls displayed in the terminal output.
+
+## Developer notes: to build the lockfile
+The lockfile "tutorial_conda_env_resolved.lockfile" is produced from an actual environment.
+First build the env from the spec file "tutorial_conda_env.yml"
+   * first activating a conda env with "mamba" in it
+   * `$ conda activate mamba-env`
+   * `$ mamba create -n mesh-tutorial --file tutorial_conda_env.yml`
+   * `conda list -n mesh-tutorial --explicit >temp_condalist_explicit.txt`
+   * then activate a conda env with 'ssstack' in it : see https://github.com/MetOffice/ssstack
+   * `$ conda activate ssstack-env`
+   * `$ ssstack shareable temp_condalist_explicit.txt >tutorial_conda_env_resolved.lockfile`
+   * `$ rm temp_condalist_explicit.txt`
+      
