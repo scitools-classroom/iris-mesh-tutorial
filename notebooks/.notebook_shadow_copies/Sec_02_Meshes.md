@@ -231,6 +231,8 @@ plotter.show()
 
 **NOTES**:
   * this operation currently generates a warning message, which however can be ignored
+  * when translated to a simple Python file + run, these plots (or at least the folowing one) can cause SegmentationFault
+     * ***TODO: this needs investigating, fix for confidence + useability***
   * it is interactive, so it causes some clutter and uses up some space.  
     To remove plot outputs, use "Clear Output" from the "Edit" menu (or from right-click on the cell)
 
@@ -278,12 +280,18 @@ my_plotter.add_coastlines()
 my_plotter.add_mesh(pv, show_edges=True, cmap='magma')
 
 my_plotter.link_views()
-my_plotter.camera.position = [0, -2.5, 2.5]
+# Use a preset "Nice" viewpoint showing off the data
+viewpoint = [
+    (-0.709497461391866, -1.2057617579427944, 1.4232488035268644),
+    (0.0, 0.0, 0.0),
+    (-0.48482598598375826, 0.7715244238081727, 0.41193910567260306)
+]
+my_plotter.camera_position = viewpoint
+
 ```
 
 ```python
 my_plotter.show()
-
 ```
 
 ## A handy hint : how to record + re-use a camera view
