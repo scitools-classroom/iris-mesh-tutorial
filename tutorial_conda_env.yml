@@ -5,9 +5,10 @@ dependencies:
   - python=3.9
   - iris
   - geovista
+  - vtk=9.2.2  # experiencing segfaults with latest version
   - jupyterlab
   - ipyvtklink
-  - jupytext
+  - jupytext=1.14.4  # changing version can cause notebook merge conflicts
   - pre-commit
-  - ugrid-checks
-
+  - iris-esmf-regrid
+  - esmpy=8.3  # iris-esmf-regrid doesn't work with latest, for some reason

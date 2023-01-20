@@ -273,3 +273,54 @@ Latest overall plan :
         - and regrid
 
 
+======================
+Thurs 19th : problems with plotting stability
+(1) derived "notebooks/Sec_02_Meshes.py" from the notebook
+  - and tweaked with 
+
+INVESTIGATE...
+= testing with above Python
+= tweaking the "tutorial_conda_env.yml" + building test envs
+
+    bill's
+      pyvista = 0.36.1
+      vtk = 9.2.2
+
+    cf problem-env (existing mesh-tutorial) :
+        $ conda list | grep -i "\(vtk\|vista\)"
+        geovista                  0.1.dev1           pyhd8ed1ab_0    https://conda.anaconda.org/conda-forge
+        ipyvtklink                0.2.3              pyhd8ed1ab_0    https://conda.anaconda.org/conda-forge
+        pyvista                   0.37.0             pyhd8ed1ab_0    https://conda.anaconda.org/conda-forge
+        pyvistaqt                 0.9.0              pyhd8ed1ab_0    https://conda.anaconda.org/conda-forge
+        vtk                       9.2.5           qt_py39h1a3df09_201    https://conda.anaconda.org/conda-forge
+
+    w pyvista=0.36 ((did not fully work : window does not close, still dumps))
+        $ conda list -n meshtut_pv36 | grep -i "\(vtk\|vista\)"
+        geovista                  0.1.dev1           pyhd8ed1ab_0    conda-forge
+        ipyvtklink                0.2.3              pyhd8ed1ab_0    conda-forge
+        pyvista                   0.36.1             pyhd8ed1ab_0    conda-forge
+        pyvistaqt                 0.9.0              pyhd8ed1ab_0    conda-forge
+        vtk                       9.2.5           qt_py39h99e95b5_202    conda-forge
+
+    w vtk=9.2.2
+    LOOKS GOOD !
+        $ conda list -n meshtut_vtk9x2x2 | grep -i "\(vtk\|vista\)"
+        # packages in environment at /tmp/persistent/newconda-envs/meshtut_vtk9x2x2:
+        geovista                  0.1.dev1           pyhd8ed1ab_0    conda-forge
+        ipyvtklink                0.2.3              pyhd8ed1ab_0    conda-forge
+        pyvista                   0.37.0             pyhd8ed1ab_0    conda-forge
+        pyvistaqt                 0.9.0              pyhd8ed1ab_0    conda-forge
+        vtk                       9.2.2           qt_py39hc075ee6_205    conda-forge
+
+    updated with that, and added i-e-r
+        $ conda list -n  mesh-tutorial-revised | grep -i "\(vtk\|vista\)"
+        geovista                  0.1.dev1           pyhd8ed1ab_0    conda-forge
+        ipyvtklink                0.2.3              pyhd8ed1ab_0    conda-forge
+        pyvista                   0.37.0             pyhd8ed1ab_0    conda-forge
+        pyvistaqt                 0.9.0              pyhd8ed1ab_0    conda-forge
+        vtk                       9.2.2           qt_py39hc075ee6_205    conda-forge
+
+Now updated :
+  * tutorial_conda_env.yml 
+  * tutorial_conda_env_resolved.lockfile
+  * README

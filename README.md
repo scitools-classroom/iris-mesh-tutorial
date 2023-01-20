@@ -15,6 +15,32 @@ So, we also provide a "lockfile" which ties down all package versions, from whic
 known-good environment can be recreated :  
 e.g. `$ conda create --name meshtut_savefixed_env --file tutorial_conda_env_resolved.lock` 
 
+> :warning: **Important Note**  
+> For now, the latest GeoVista build in channels is not sufficient.  
+> You must also download geovista + install it, e.g. by `pip install -e .`
+### Installing Geovista :  more-or-less detailed instructions
+You need to execute commands something like this ...
+
+```bash
+$ # download
+$ cd ~/git
+$ git clone https://github.com/bjlittle/geovista.git
+$
+$ # install in the env
+$ conda activate mesh-tutorial
+$ cd ~/git/geovista
+$ pip install -e .
+  ... (lots of output) ...
+$ 
+$ # TEST that the import now works ...
+$ python -c "import geovista as gv; print(gv); print(gv.__version__)"
+<module 'geovista' from '/net/home/h05/itpp/git/geovista/src/geovista/__init__.py'>
+0.1a1.dev508
+
+$ 
+```
+
+
 ## Start the tutorial
 E.G.  
 ```
@@ -39,3 +65,25 @@ $ jupyter lab
 ```
 A window should then appear in your browser.  
 Failing that, visit one of the urls displayed in the terminal output.
+
+
+## Developer notes: to build the lockfile
+The lockfile "tutorial_conda_env_resolved.lockfile" is produced from an actual environment.
+First build the env from the spec file "tutorial_conda_env.yml" ...
+
+First using a conda env with "mamba" in it : resolve the env + snapshot the package list.
+
+```bash
+$ conda activate mamba-env
+$ mamba create -n mesh-tutorial --file tutorial_conda_env.yml
+$ conda list -n mesh-tutorial --explicit >temp_condalist_explicit.txt
+```
+
+Then using a conda env with 'ssstack' in it (https://github.com/MetOffice/ssstack) : generate new 'shareable'-form lockfile.
+
+```bash
+$ conda activate ssstack-env
+$ ssstack shareable temp_condalist_explicit.txt >tutorial_conda_env_resolved.lockfile
+$ rm temp_condalist_explicit.txt
+```
+      
