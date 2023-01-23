@@ -34,26 +34,14 @@ from iris.experimental.ugrid import PARSE_UGRID_ON_LOAD
 Suppose we need to compare data located on two different kinds of grids. One is located on a UM style "latlon" _grid_ and one is located on an LFRic style cubed sphere UGRID _mesh_. Data can be translated from the grid to the mesh and vice versa via _regridding_. We will demonstrate with the following files:
 
 ```python
-lfric_dir = Path("/scratch",
-                 "sworsley",
-                 "lfric_data")
-# mesh_orog_file = lfric_dir / "ugrid_surface.nc"
-# grid_orog_file = lfric_dir / "latlon_surface.nc"
-mesh_orog_file = lfric_dir / "lf_orog_cube.nc"
-grid_orog_file = lfric_dir / "um_orog_cube.nc"
+from testdata_fetching import lfric_orography, um_orography
+mesh_cube = lfric_orography()
+mesh_cube
 ```
 
 ```python
-iris.FUTURE.datum_support = True  # avoids some irritating warnings
-with PARSE_UGRID_ON_LOAD.context():
-    mesh_cube = load_cube(mesh_orog_file)
-
-grid_cube = load_cube(grid_orog_file)
-
-# TODO: plot these cubes instead
-print(mesh_cube)
-print("")
-print(grid_cube)
+grid_cube = um_orography()
+grid_cube
 ```
 
 Regridding unstructured data is more complex than the regridders contained in Iris and requires making use of powerful libraries (`ESMF`). The `iris-esmf-regrid` package provides a bridge from iris to esmf with objects that interact directly with iris cubes. The `MeshToGridESMFRegridder` class allows the regridding of (LFRic style) mesh cubes onto (UM style) latlon grid cubes.
@@ -78,29 +66,62 @@ print(result)
 The reason this is done in two steps is because initialising a regridder is potentially quite expensive if the grids or meshes involved are large. Once initialised, a regridder can regrid many source cubes (defined on the same source grid/mesh) onto the same target. We can demonstrate this by regridding a different cube using the same regridder.
 
 ```python
-# TODO: consider having a different cube to load here.
-#   consider a step to check that their meshes are equal.
-mesh_temp_file = lfric_dir / "lf_temp_cube.nc"
-
-with PARSE_UGRID_ON_LOAD.context():
-    mesh_cube_2 = load_cube(mesh_temp_file)
+# Load an air temperature cube.
+from testdata_fetching import lfric_temp
+mesh_temp = lfric_temp()
 
 # We can check that this cube shares the same mesh.
-assert mesh_cube_2.mesh == mesh_cube.mesh
+assert mesh_temp.mesh == mesh_cube.mesh
 
-# # Create a different cube defined on the same Mesh.
-# # This cube has different data, shape and dimension order.
-# # You can also try changing the cube name and attributes.
-# mesh_cube_2 = mesh_cube.copy(np.random.rand(*mesh_cube.shape))[:12]
-# mesh_cube_2.transpose()
-print(mesh_cube_2)
+mesh_temp
 ```
 
 ```python
 # Regrid the new mesh cube using the same regridder.
 # Note how the time coordinate is also transposed in the result.
-result_2 = regridder(mesh_cube_2)
-print(result_2)
+result_2 = regridder(mesh_temp)
+result_2
+```
+
+We can save time in future runs by saving and loading a regridder with `save_regridder` and `load_regridder`.
+
+*Note:* The information for the regridder is saved as a NetCDF file so the file name must have a `.nc` extension.
+
+```python
+# This code is commented for the time being to avoid generating files.
+
+# from esmf_regrid.experimental.io import load_regridder, save_regridder
+
+# save_regridder(regridder, "lf_to_um_regridder.nc")
+# loaded_regridder = load_regridder("lf_to_um_regridder.nc")
+```
+
+We can compare the regridded file to an equivalent file from the UM.
+
+```python
+import iris.quickplot as iqplt
+import matplotlib.pyplot as plt
+
+from testdata_fetching import um_temp
+grid_temp = um_temp()
+
+iqplt.pcolormesh(grid_temp[0, 0])
+plt.gca().coastlines()
+plt.show()
+
+iqplt.pcolormesh(result_2[0, 0])
+plt.gca().coastlines()
+plt.show()
+```
+
+We can then plot the difference between the UM data and the data regridded from LFRic. Since our data is now on a latlon grid we can do this with matplotlib as normal.
+
+```python
+temp_diff = result_2 - grid_temp
+
+iqplt.pcolormesh(temp_diff[0, 0], vmin=-4,vmax=4, cmap="seismic")
+plt.gca().coastlines()
+plt.show()
 ```
 
 ```python
@@ -115,7 +136,7 @@ We can also regrid from latlon grids to LFRic style meshes using `GridToMeshESMF
 g2m_regridder = GridToMeshESMFRegridder(grid_cube, mesh_cube)
 # Regrid the grid cube.
 result_3 = g2m_regridder(grid_cube)
-print(result_3)
+result_3
 ```
 
 ## Exercise 1: Comparing regridding methods
@@ -140,12 +161,9 @@ bilinear_result = bilinear_regridder(mesh_cube)
 bilinear_diff = bilinear_result - result
 ```
 
-**Step 4:** Plot the results and the difference.
+**Step 4:** Plot the results and the difference using `iris.quickplot` and `matplotlib`.
 
 ```python
-# TODO:
-import iris
-iris.FUTURE.datum_support = True  # avoids some irritating warnings
 import iris.quickplot as iqplt
 import matplotlib.pyplot as plt
 
@@ -195,9 +213,9 @@ print(lat_band_cube)
 
 **Step 4:** Create a regridder from `mesh_cube` to the single celled cube you created.
 
-*Note:* ESMF represents all lines as sections of great circles rather than lines of constant latitude. It also cannot represent sections of great circles with angle equal or greater than 180 degrees. `MeshToGridESMFRegridder` would  fail to properly handle the single celled cube without the `resolution` keyword.
+*Note:* ESMF represents all lines as sections of great circles rather than lines of constant latitude. This means that `MeshToGridESMFRegridder` would  fail to properly handle such a large cell. We can solve this problem by using the `resolution` keyword. By providing a `resolution`, we divide each cell into as many sub-cells each bounded by the same latitude bounds.
 
-If we initialise a regridder with `MeshToGridESMFRegridder(src_mesh, tgt_grid, resolution=10)`, then the lines of latitude bounding each of the cells in `tgt_grid` will be approximated by 10 great circle sections.
+If we initialise a regridder with `MeshToGridESMFRegridder(src_mesh, tgt_grid, resolution=10)`, then the lines of latitude bounding each of the cells in `tgt_grid` will be *approximated* by 10 great circle sections.
 
 Initialise a `MeshToGridESMFRegridder` with `mesh_cube` and your single celled cube as its arguments and with a `resolution=10` keyword.
 
@@ -224,7 +242,7 @@ print(lat_band_mean_100.data)
 
 **Step 7:** Repeat steps 1 - 6 for latitude bounds `[[-90, 90]]`, longitude bounds `[[-40, 40]]` and resolutions 2 and 10.
 
-*Note:* Unlike lines of constant latitude, lines of constant longitude are already great circle arcs. Since these arcs are 180 degrees it is necessary to have a resolution argument. However, an increase in resolution will not affect the accuracy since a resolution of 2 will already have maximum accuracy. Note how the results are the equal.
+*Note:* Unlike lines of constant latitude, lines of constant longitude are already great circle arcs.This might suggest that the `resolution` argument is unnnecessary, however these arcs are 180 degrees which ESMF is unable to represent so we still need a `resolution` of at least 2. In this case, an increase in resolution will not affect the accuracy since a resolution of 2 will already have maximum accuracy. Note how the results are the equal.
 
 ```python
 lat_full = DimCoord(0, bounds=[[-90, 90]], standard_name="latitude", units="degrees")
