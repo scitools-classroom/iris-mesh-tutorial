@@ -25,7 +25,6 @@ import iris
 from iris import load, load_cube
 from iris.coords import DimCoord
 from iris.cube import Cube
-from iris.experimental.ugrid import PARSE_UGRID_ON_LOAD
 ```
 
 ## Example: Regridding LFRic data
@@ -60,7 +59,7 @@ regridder = MeshToGridESMFRegridder(mesh_cube, grid_cube)
 ```python
 # Regrid the mesh cube.
 result = regridder(mesh_cube)
-print(result)
+result
 ```
 
 The reason this is done in two steps is because initialising a regridder is potentially quite expensive if the grids or meshes involved are large. Once initialised, a regridder can regrid many source cubes (defined on the same source grid/mesh) onto the same target. We can demonstrate this by regridding a different cube using the same regridder.
@@ -185,15 +184,20 @@ plt.show()
 
 ## Exercise 2: Zonal means
 
-A zonal mean is the area weighted average over a defined region. e.g. a band of latitude/longitude.
-Calculating zonal means can be done as a regridding operation where the zone is defined by the target cube.
-In this example, the target cube will contain a single cell.
+For a latlon cube, a common operation is to collapse over longitude by taking an average. This is not possible for an LFRic style mesh cube since there is no independent longitude dimension to collapse. While it is possible to regrid to a latlon cube and then collapse, this introduces an additional step to the process. Instead, it is possible to simplify this into a single step by considering this as a regridding operation where the target cube contains multiple latitude bands.
 
-**Step 1:** Define a latitude coordinate whose bounds are `[[-20, 20]]`. Remember to set the standard name to be `"latitude"` and the units to be `"degrees"`
+A zonal mean is the area weighted average over a defined region or sequence of regions. e.g. a band of latitude/longitude.
+Calculating zonal means can be done as a regridding operation where the zone is defined by the target cube. This can involve a target cube with a single cell or, as in this example, a number of cells along the latitude dimension.
+
+**Step 1:** Define a latitude coordinate whose bounds are `[[-90, -60], [-60, -30], [-30, 0], [0, 30], [30, 60], [60, 90]]`. Remember to set the standard name to be `"latitude"` and the units to be `"degrees"`
 
 ```python
-lat_band = DimCoord(0, bounds=[[-20, 20]], standard_name="latitude", units="degrees")
-
+lat_bands = DimCoord(
+    [-75, -45, -15, 15, 45, 75],
+    bounds=[[-90, -60], [-60, -30], [-30, 0], [0, 30], [30, 60], [60, 90]],
+    standard_name="latitude",
+    units="degrees"
+)
 ```
 
 **Step 2:** Define a longitude coordinate whose bounds are `[[-180, 180]]`. Remember to set the standard name to be `"longitude"` and the units to be `"degrees"`
@@ -205,9 +209,9 @@ lon_full = DimCoord(0, bounds=[[-180, 180]], standard_name="longitude", units="d
 **Step 3:** Create a single celled cube (i.e. `Cube([[0]])`) and attach the latitude and longitude coordinates to it.
 
 ```python
-lat_band_cube = Cube([[0]])
-lat_band_cube.add_dim_coord(lat_band, 0)
-lat_band_cube.add_dim_coord(lon_full, 1)
+lat_band_cube = Cube([[0, 0, 0, 0, 0, 0]])
+lat_band_cube.add_dim_coord(lat_bands, 1)
+lat_band_cube.add_dim_coord(lon_full, 0)
 print(lat_band_cube)
 ```
 
