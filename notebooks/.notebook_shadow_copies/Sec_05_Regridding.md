@@ -123,11 +123,6 @@ plt.gca().coastlines()
 plt.show()
 ```
 
-```python
-# Consider a bonus task to measure the relative time taken.
-# import time... etc
-```
-
 We can also regrid from latlon grids to LFRic style meshes using `GridToMeshESMFRegridder`.
 
 ```python
@@ -136,6 +131,11 @@ g2m_regridder = GridToMeshESMFRegridder(grid_cube, mesh_cube)
 # Regrid the grid cube.
 result_3 = g2m_regridder(grid_cube)
 result_3
+```
+
+```python
+# Bonus task:
+# Use %%timeit to investigate how much time it takes to initialise a regridder vs applying the regridder.
 ```
 
 ## Exercise 1: Comparing regridding methods
@@ -209,10 +209,10 @@ lon_full = DimCoord(0, bounds=[[-180, 180]], standard_name="longitude", units="d
 **Step 3:** Create a single celled cube (i.e. `Cube([[0]])`) and attach the latitude and longitude coordinates to it.
 
 ```python
-lat_band_cube = Cube([[0, 0, 0, 0, 0, 0]])
+lat_band_cube = Cube(np.zeros((1,) + lat_bands.shape))
 lat_band_cube.add_dim_coord(lat_bands, 1)
 lat_band_cube.add_dim_coord(lon_full, 0)
-print(lat_band_cube)
+lat_band_cube
 ```
 
 **Step 4:** Create a regridder from `mesh_cube` to the single celled cube you created.
@@ -232,6 +232,9 @@ lat_band_mean_calculator_10 = MeshToGridESMFRegridder(mesh_cube, lat_band_cube, 
 ```python
 lat_band_mean_10 = lat_band_mean_calculator_10(mesh_cube)
 print(lat_band_mean_10.data)
+iqplt.pcolormesh(lat_band_mean_10)
+plt.gca().coastlines()
+plt.show()
 ```
 
 **Step 6:** Repeat step 4 and 5 for `resolution=100`.
@@ -242,6 +245,10 @@ Note the difference in value. Also note that it takes more time to initialise a 
 lat_band_mean_calculator_100 = MeshToGridESMFRegridder(mesh_cube, lat_band_cube, resolution=100)
 lat_band_mean_100 = lat_band_mean_calculator_100(mesh_cube)
 print(lat_band_mean_100.data)
+
+iqplt.pcolormesh(lat_band_mean_100)
+plt.gca().coastlines()
+plt.show()
 ```
 
 **Step 7:** Repeat steps 1 - 6 for latitude bounds `[[-90, 90]]`, longitude bounds `[[-40, 40]]` and resolutions 2 and 10.
@@ -265,8 +272,72 @@ lon_band_mean_10 = lon_band_mean_calculator_10(mesh_cube)
 print(lon_band_mean_10.data)
 ```
 
+## Exercise 3: Hovmoller plots
+
+If we have data on aditional dimensions, we can use the same approach as exercise 2 to produce a Hovmoller diagram. That is, if we have data that varies along time we can take the area weighted mean over latitude bands and plot the data aginst longitude and time (or similarly, we can plot against latitude and time).
+
+**Step 1:** Load a temperature cube using the `testdata_fetching` function `lfric_temp`. Extract a single pressure slice using the `cube.extract` method with a constraint `iris.Constraint(pressure=850)` as the argument (we choose this level because it has noticable details).
+
+
+from testdata_fetching import fric_temp
+mesh_temp = lfric_temp()
+
+temp_slice = mesh_temp.extract(iris.Constraint(pressure=850))
+temp_slice
+
+
+**Step 2:** Create a target cube whose longitude coordinate is derived from the UM cube loaded from `um_orography` and whose latitude coordinate has bounds `[[-180, 180]]`. This can be done by slicing a cube derived from `um_orography` (using the slice `[:1]` so that this dimension isnt collapsed), removing the latitude coordinate and adding a latitude coordinate with bounds `[[-180, 180]]` (you can reuse the coordinate from exercise 2).
+
+```python
+target_cube_lons = grid_cube[:1]
+target_cube_lons.remove_coord("latitude")
+target_cube_lons.add_dim_coord(lat_full, 0)
+target_cube_lons
+```
+
+```python
+# We also can do the same thing for bands of constant latitude.
+
+# target_cube_lats = grid_cube[:,:1]
+# target_cube_lats.remove_coord("longitude")
+# target_cube_lats.add_dim_coord(lon_full, 1)
+# target_cube_lats
+```
+
+**Step 3:** Create a `MeshToGridESMFRegridder` regridder from the slice of the temperature cube onto the target cube. Set the resolution keyword to 2 (this should be sufficient since these are bands of constant longitude). Use this regridder to create a resulting cube.
+
+```python
+um_lon_band_mean_calculator = MeshToGridESMFRegridder(temp_slice, target_cube_lons, resolution=2)
+um_lon_bound_means = um_lon_band_mean_calculator(temp_slice)
+um_lon_bound_means
+```
+
+```python
+# um_lat_band_mean_calculator = MeshToGridESMFRegridder(temp_slice, target_cube, resolution=500)
+# um_lat_bound_means = um_lat_band_mean_calculator(temp_slice)
+# um_lat_bound_means
+```
+
+**Step 4:** Plot the data in the resulting cube. This can be done with `iqplt.pcolormesh`. Note that the resulting cube will have an unnecessary dimension which will have to be sliced (using `[:, 0]`). Note that extra steps can be taken to format the dates for this plot.
+
+```python
+import matplotlib.dates as mdates
+
+iqplt.pcolormesh(um_lon_bound_means[:, 0, :])
+plt.gca().yaxis.set_major_formatter(mdates.DateFormatter("%D"))
+plt.show()
+```
+
+```python
+# import matplotlib.dates as mdates
+# iqplt.pcolormesh(um_lat_bound_means[:, :, 0])
+# plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%D"))
+# plt.show()
+```
+
 ```python
 # Bonus Exercise:
+
 # Create a regridder onto a single celled cube which represents the whole earth.
 # Use this regridder to compare how well bilinear regridding and area weighted
 # regridding preserve area weighted mean after round tripping.
