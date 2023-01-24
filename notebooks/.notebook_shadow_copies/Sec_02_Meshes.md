@@ -70,31 +70,39 @@ Here is an example of what that looks like :--
 
 This does not happen in current LFRic data : the mesh is a "cubesphere" (see later images), and all cells have four corners.
 
+
+---
+
+## Fetch some sample unstructured data, as used in Section#01
+
+**Import the data-access routine `lfric_rh_singletime_2d` from `testdata_fetching`, and call it to get a single two-dimensional test cube.**
+
 ```python
-# Get sample files, as used in Section#01
-
-from pathlib import Path
-datadir = Path('/scratch/sworsley/lfric_data')
-
-import iris
-from iris.experimental.ugrid.load import PARSE_UGRID_ON_LOAD
-iris.FUTURE.datum_support = True  # avoids some irritating warnings
-
-um_filepth = datadir / '20210324T0000Z_um_latlon.nc'
-lfric_filepth = datadir / '20210324T0000Z_lf_ugrid.nc'
+## TODO : remove later -- this bit is temporary, for initial testing with C48 data
+from testdata_fetching import switch_data
+switch_data(use_newer_smaller_c48_data=True)
 ```
 
 ```python
-with PARSE_UGRID_ON_LOAD.context():
-    lfric_rh = iris.load_cube(lfric_filepth, 'relative_humidity_at_screen_level')
-    # Rename this cube, to make it clear wich model this came from.
-    lfric_rh.rename('LFRic Rh data')
+from testdata_fetching import lfric_rh_singletime_2d
+lfric_rh = lfric_rh_singletime_2d()
 ```
+
+**Print the cube, and its `cube.mesh`**
 
 ```python
 print(lfric_rh)
 print('\n----\n')
 print(lfric_rh.mesh)
+```
+
+```python
+# TODO: work this up for user input
+
+# Simply plot that ..
+from pv_conversions import pv_from_lfric_cube
+pv = pv_from_lfric_cube(lfric_rh)
+pv.plot() #jupyter_backend='static')
 ```
 
 ```python
@@ -120,7 +128,9 @@ rh_t0 = lfric_rh[0]
 <!-- #endregion -->
 
 ```python
-rh_t0 = lfric_rh[0]
+from testdata_fetching import lfric_rh_singletime_2d
+
+rh_t0 = lfric_rh_singletime_2d()
 ```
 
 <!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
@@ -180,7 +190,29 @@ pv
 ( Note: like `Cube`s + `CubeList`s, these `PolyData` objects are provided with a specific visible within the Jupyter notebooks.  This is displayed when you just enter the variable in a cell.  
 You can also use "print(x)" to display the standard string representation of the object, but usually the notebook-style output is a bit more useful. )
 
-<!-- #region -->
+
+---
+### Quick 3d plotting
+
+For a really quick, basic plot, you can display a PolyData as a VTK view with PyVista, by simply calling its `.plot` method.
+
+**Call the `plot` routine of the PolyData object.  An output should appear.**
+
+```python
+pv.plot()
+```
+
+**NOTES**:
+  * this plot is interactive -- try dragging to rotate, and the mouse scroll-wheel to zoom
+  * this obviously causes some clutter and uses up some space (e.g. you can't easily scroll past it)  
+    * To ***remove*** a plot output, use "Clear Output" from the "Edit" menu (or from right-click on the cell)
+  * alternatively, set the keyword `jupyter_backend='static'` in the command, for output as a plain image
+
+There are a lot more keywords available to [the `PolyData.plot()` method](https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.plot.html), but it is not ideal to overcomplicate these calls.  :  
+Finer control is better achieved in a different ways :  See more detail on plotting in [the Plotting section](./Sec_03_Plotting.ipynb).
+
+
+<!-- #region tags=[] -->
 ### Create a plotter, and display 3D visualisation
 
 Finally, we will plot the 'PolyData' object via PyVista.  
@@ -229,20 +261,15 @@ plotter.show()
 </details>
 <!-- #endregion -->
 
-**NOTES**:
-  * this operation currently generates a warning message, which however can be ignored
-  * when translated to a simple Python file + run, these plots (or at least the folowing one) can cause SegmentationFault
-     * ***TODO: this needs investigating, fix for confidence + useability***
-  * it is interactive, so it causes some clutter and uses up some space.  
-    To remove plot outputs, use "Clear Output" from the "Edit" menu (or from right-click on the cell)
-
 ```python
 plotter.show()
 ```
 
 **Some odd notes:**
   * By default, `plotter.show()` opens an interactive window : **you can rotate and zoom it with the mouse**.
-    * you can instead generate static output (try `interactive=False`)
+    * you can instead generate static output 
+        * in a notebook, you do this with `jupyter_backend='static'`
+        * or in a Python session, try `interactive=False`
   * VTK/PyVista doesn't use plot "types".  
     Instead, you add meshes to a plotter + can subsequently control the presentation.
   * GeoVista can also produce more familiar 2D plots (see on ...)
@@ -250,124 +277,3 @@ plotter.show()
 
 
 ***TODO:*** can suggest some of these as follow-on exercises
-
-
-# Comparing UM and LFRic fields
-
-```python
-um_rh = iris.load_cube(um_filepth, 'relative_humidity')
-# Rename so we are clear which model this came from
-lfric_rh.rename('UM Rh data')
-um_rh
-```
-
-```python
-from pv_conversions import pv_from_um_cube
-um_pv = pv_from_um_cube(um_rh[0])
-```
-
-## Simple side-by-side plotting : UM vs LFRic data
-
-```python
-my_plotter = GeoPlotter(shape=(1, 2))
-
-my_plotter.subplot(0, 0)
-my_plotter.add_coastlines()
-my_plotter.add_mesh(um_pv, show_edges=True, cmap='magma')
-
-my_plotter.subplot(0, 1)
-my_plotter.add_coastlines()
-my_plotter.add_mesh(pv, show_edges=True, cmap='magma')
-
-my_plotter.link_views()
-# Use a preset "Nice" viewpoint showing off the data
-viewpoint = [
-    (-0.709497461391866, -1.2057617579427944, 1.4232488035268644),
-    (0.0, 0.0, 0.0),
-    (-0.48482598598375826, 0.7715244238081727, 0.41193910567260306)
-]
-my_plotter.camera_position = viewpoint
-
-```
-
-```python
-my_plotter.show()
-```
-
-## A handy hint : how to record + re-use a camera view
-
-```python
-viewpoint = my_plotter.camera_position
-viewpoint
-```
-
-```python
-# This pre-loaded position focusses on a cubesphere "corner" in the middle East
-viewpoint = [
-    (0.9550352379408845, 0.9378277371075855, 0.9637172962958191),
-    (0.0, 0.0, 0.0),
-    (-0.3202752464164225, -0.5004192729867466, 0.8043657860428399)
-]
-```
-
-```python
-# Plot just the LFRIC data with the same view ...
-new_plotter = GeoPlotter()
-new_plotter.add_coastlines()
-new_plotter.add_mesh(pv, show_edges=True)
-new_plotter.camera_position = viewpoint
-new_plotter.show()
-```
-
-```python
-
-```
-
-```python
-# WIP : projected 2D plotting
-```
-
-```python
-# GeoVista coastline projection not yet supported. Use a representation of coastlines as Cube data instead.
-
-# import requests
-# r = requests.get("https://github.com/SciTools-incubator/presentations/raw/main/ngms_champions_2022-04-12/coastline_grid.nc")
-# open("coastline_grid.nc", "wb").write(r.content)
-
-# coastline_cube = iris.load_cube("coastline_grid.nc")
-
-# coastline_polydata = pv_from_structcube(coastline_cube)
-# # Remove all NaN's (grid squares that aren't on a coast).
-# coastline_polydata = coastline_polydata.threshold()
-```
-
-```python
-def plot_projected(my_polydata, plotter=None):
-    """Plot polydata on a given plotter"""
-    if plotter is None:
-        plotter = GeoPlotter()
-    # Add the coastline cells 'above' the data itself.
-    plotter.add_mesh(
-        coastline_polydata,
-        color="white",
-        show_edges=True,
-        edge_color="white",
-        radius=1.1,     # For globe plots
-        zlevel=10,       # For planar plots
-    )
-    plot_polydata = my_polydata.copy()
-    plotter.add_mesh(plot_polydata)
-    # if plotter.crs != WGS84:
-    #     # Projected plot.
-    #     plotter.camera_position = "xy"
-    #     backend = "static"
-    # else:
-    #     backend = "pythreejs"
-#         backend = "static"
-    plotter.show()  # jupyter_backend=backend)
-```
-
-```python
-# Plot these side-by-side ...
-
-```

@@ -19,10 +19,8 @@ First run some preliminary Python setup, imports etc ...
 ```python
 # import the top-level Iris package
 import iris
-# mask some irritating warnings about new loading behaviour in Iris 3.4
-iris.FUTURE.datum_support = True
 
-# import some local routines to ask the test data
+# import local routines handling access to some test data
 from testdata_fetching import lfric_filepth
 ```
 
@@ -52,6 +50,8 @@ from iris.experimental.ugrid.load import PARSE_UGRID_ON_LOAD
 ```
 
 <!-- #region -->
+---
+
 The variable `lfric_filepath` is already set up, pointing to a suitable test file.
 
 **Exercise : Load all data from `lfric_filepath`, with the UGRID loading enabled, and print the first 10 cubes.**  
