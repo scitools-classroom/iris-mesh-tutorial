@@ -276,7 +276,7 @@ print(lon_band_mean_10.data)
 
 ## Exercise 3: Hovmoller plots
 
-If we have data on aditional dimensions, we can use the same approach as exercise 2 to produce a Hovmoller diagram. That is, if we have data that varies along time we can take the area weighted mean over latitude bands and plot the data aginst longitude and time (or similarly, we can plot against latitude and time).
+If we have data on aditional dimensions, we can use the same approach as exercise 2 to produce a Hovmoller diagram. That is, if we have data that varies along time we can take the area weighted mean over latitude bands and plot the data aginst latitude and time (or similarly, we can plot against longitude and time).
 
 **Step 1:** Load a cube with humidity data using the `testdata_fetching` function `lfric_rh_alltimes_3d`.
 
