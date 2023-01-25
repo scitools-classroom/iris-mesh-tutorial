@@ -45,6 +45,8 @@ whenever something seems to be taking a long time with no result...
    * [02 - Mesh concepts and Meshes in Iris](./Sec_02_Meshes.ipynb)
    * [03 - Plotting and Visualisation](./Sec_03_Plotting.ipynb)
    * [04 - Regional Extraction](./Sec_04_RegionExtraction.ipynb)
+   * [05 - Regridding and UM data comparison](./Sec_05_Regridding.ipynb)
+   
 
 
 ## Reference : terminology (probably, a separate linked glossary ??)
