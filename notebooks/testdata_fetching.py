@@ -11,9 +11,18 @@ from iris.experimental.ugrid.load import PARSE_UGRID_ON_LOAD
 
 um_filepth = datadir / '20210324T0000Z_um_latlon.nc'
 lfric_filepth = datadir / '20210324T0000Z_lf_ugrid.nc'
+lfric_latlon_filepth = datadir / '20210324T0000Z_lf_latlon.nc'
 
 def um_all_datacubes():
     return iris.load(um_filepth)
+
+def um_orography():
+    cube = iris.load_cube(lfric_latlon_filepth, 'surface_altitude')
+    return cube[0]
+
+def um_temp():
+    cube = iris.load_cube(um_filepth, 'air_temperature_0')
+    return cube
 
 def um_rh_alltimes_3d():
     return iris.load_cube(um_filepth, 'relative_humidity')
@@ -27,6 +36,16 @@ def lfric_all_datacubes():
         cubes = iris.load(lfric_filepth)
     return cubes
 
+def lfric_orography():
+    with PARSE_UGRID_ON_LOAD.context():
+        cube = iris.load_cube(lfric_filepth, 'surface_altitude')
+    return cube[0]
+
+def lfric_temp():
+    with PARSE_UGRID_ON_LOAD.context():
+        cube = iris.load_cube(lfric_filepth, 'air_temperature')
+    return cube
+
 def lfric_rh_alltimes_3d():
     with PARSE_UGRID_ON_LOAD.context():
         rh_cube = iris.load_cube(lfric_filepth, 'relative_humidity_at_screen_level')
@@ -35,4 +54,3 @@ def lfric_rh_alltimes_3d():
 def lfric_rh_singletime_2d():
     cube = lfric_rh_alltimes_3d()
     return cube[0]
-
