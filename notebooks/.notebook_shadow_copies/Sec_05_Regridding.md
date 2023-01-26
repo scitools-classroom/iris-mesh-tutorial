@@ -17,12 +17,7 @@ jupyter:
 ## Set up
 
 ```python
-from pathlib import Path
-import numpy as np
-
 from esmf_regrid.experimental.unstructured_scheme import MeshToGridESMFRegridder, GridToMeshESMFRegridder
-import iris
-from iris import load, load_cube
 from iris.coords import DimCoord
 from iris.cube import Cube
 ```
@@ -347,8 +342,4 @@ plt.show()
 # Create a regridder onto a single celled cube which represents the whole earth.
 # Use this regridder to compare how well bilinear regridding and area weighted
 # regridding preserve area weighted mean after round tripping.
-```
-
-```python
-
 ```
