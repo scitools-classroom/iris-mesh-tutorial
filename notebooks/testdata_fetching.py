@@ -1,7 +1,6 @@
 """Routines providing a simple interface to load matching UM and LFRic test data as Iris cubes."""
 
 from pathlib import Path
-datadir = Path('/scratch/sworsley/lfric_data')
 
 import iris
 iris.FUTURE.datum_support = True  # avoids some irritating warnings
@@ -9,9 +8,32 @@ iris.FUTURE.datum_support = True  # avoids some irritating warnings
 from iris.experimental.ugrid.load import PARSE_UGRID_ON_LOAD
 
 
-um_filepth = datadir / '20210324T0000Z_um_latlon.nc'
-lfric_filepth = datadir / '20210324T0000Z_lf_ugrid.nc'
-lfric_latlon_filepth = datadir / '20210324T0000Z_lf_latlon.nc'
+# Useful public variables
+data_path = None
+um_filepth = None
+lfric_filepth = None
+lfric_latlon_filepth = None
+
+# For now : select C192 (?) or C48 source data
+def switch_data(use_newer_smaller_c48_data=True):
+    global data_path, um_filepth, lfric_filepth, lfric_latlon_filepth
+
+    if use_newer_smaller_c48_data:
+        # newer data
+        data_path = Path('/home/h03/bfock/scratch/example_data_u-ct674/')
+    else:
+        # older data
+        data_path = Path('/scratch/sworsley/lfric_data')
+
+    um_filepth = data_path / '20210324T0000Z_um_latlon.nc'
+    lfric_filepth = data_path / '20210324T0000Z_lf_ugrid.nc'
+    lfric_latlon_filepth = data_path / '20210324T0000Z_lf_latlon.nc'
+
+
+# By default (for now) use LARGER data
+# N.B. works dynamically -- fetched results are all affected
+switch_data(use_newer_smaller_c48_data=False)
+
 
 def um_all_datacubes():
     return iris.load(um_filepth)

@@ -14,13 +14,8 @@ jupyter:
 
 # LFRic + Iris tutorial : Unstructured meshes
 
-<!-- #region tags=[] -->
----
 
-Some important initial setup (always do first) ..
-<!-- #endregion -->
-
-## Important : use + stability of notebooks
+## Important Preliminary : use + stability of notebooks
 
 A good deal of the content relies on code which is still experimental.
 We must expect that there are various outstanding problems, and things sometimes crash.
@@ -49,6 +44,9 @@ whenever something seems to be taking a long time with no result...
    * [01 - Load and Examine some LFRic data](./Sec_01_Load_and_Examine.ipynb)
    * [02 - Mesh concepts and Meshes in Iris](./Sec_02_Meshes.ipynb)
    * [03 - Plotting and Visualisation](./Sec_03_Plotting.ipynb)
+   * [04 - Regional Extraction](./Sec_04_RegionExtraction.ipynb)
+   * [05 - Regridding and UM data comparison](./Sec_05_Regridding.ipynb)
+   
 
 
 ## Reference : terminology (probably, a separate linked glossary ??)
@@ -65,7 +63,7 @@ whenever something seems to be taking a long time with no result...
 
 
 <!-- #region -->
-# **TOPICS LIST?**
+# Work To Do : **TOPICS LIST**
 
 A draft list of topics for discussion.  
 NOTE : all these basically need re-casting as interactive sections lead by task questions.  

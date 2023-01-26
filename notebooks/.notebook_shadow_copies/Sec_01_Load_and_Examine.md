@@ -14,128 +14,109 @@ jupyter:
 
 # Section 1 : Loading and Examining some LFRic data
 
-Let's dive right in by taking a look at some output file contents.
-
-**TODO: data needs to be available somewhere sensible**
-
-```python tags=[]
-from pathlib import Path
-datadir = Path('/scratch/sworsley/lfric_data')
-datadir.exists()
-```
+First run some preliminary Python setup, imports etc ...
 
 ```python
-%ls -1l {datadir}
-```
-
-```python
-# !ncdump -h /scratch/sworsley/lfric_data/latlon_surface.nc | head -n 100
-```
-
-```python
-!ncdump -h /scratch/sworsley/lfric_data/20210324T0000Z_lf_ugrid.nc | head -n 100
-```
-
-## Relationship to existing Iris usage
-
-Much the same ...
-
-
-```python
+# import the top-level Iris package
 import iris
-iris.FUTURE.datum_support = True  # avoids some irritating warnings
-```
 
-```python
-# From these, grab one UM and one LFRic datafile, which roughly correspond
-
-um_filepth = datadir / '20210324T0000Z_um_latlon.nc'
-lfric_filepth = datadir / '20210324T0000Z_lf_ugrid.nc'
-```
-
-<!-- #region tags=[] -->
-## Just for reference : some UM data, and what that looks like in Iris ...
-<!-- #endregion -->
-
-```python
-um_cubes = iris.load(um_filepth)
-```
-
-```python
-print("n(UM-cubes) = ", len(um_cubes))
-print("first 10 cubes ...")
-um_cubes[:10]
-```
-
-```python
-um_rh = um_cubes.extract_cube('relative_humidity')
-um_rh
+# import local routines handling access to some test data
+from testdata_fetching import lfric_filepth
 ```
 
 <!-- #region -->
-### NOTE: loading a single cube
-You could instead load a single cube directly from the file.  
+## Iris unstructured loading
+Let's dive right in by taking a look at some mesh content.
+
+"Unstructured" data can be loaded from UGRID files (i.e. netCDF files containing a UGRID-style mesh).  
+This is just like normal Iris loading, except that we must *enable* the interpretion of UGRID content,  
+roughly like this ...
+
 ```python
-um_rh = iris.load_cube(um_filepth, 'relative_humidity')
+with PARSE_UGRID_ON_LOAD.context():
+    cube_list = iris.load(path [, constraints])
+    # ..and/or..
+    single_cube = iris.load_cube(path [, constraints])
+    # ..and/or..
+    selected_cubes = iris.load_cubes(path, cube_constraints)
+
 ```
-This is in fact rather faster, from a file like this with lots of data-variables (i.e. diagnostics).
+
+**Exercise : first import the `PARSE_UGRID_ON_LOAD` object from iris.experimental.ugrid.load**
 <!-- #endregion -->
 
 ```python
-
-```
-
-## What's in the LFRic files ?
-
-Let's start with a quick look at a dump of the file  
- -- but not actually all of it, as there are ***dozens*** of disagnostic variables ...
- 
-
-```python
-!ncdump -h {lfric_filepth} | head -n 120
-```
-
-The mesh metadata alone can be better viewed using the "ugrid checker" program, which knows how to interpret it ...
-( NOTE:  this is a public utility, also designed here in AVD : see https://github.com/pp-mo/ugrid-checks#readme )
-
-```python
-!ugrid-checker -sqe {lfric_filepth} | head -n 24
-```
-
----
-
-Let's not bother any more with that : Instead, we can load it into Iris which does a reasonable job of interpreting the mesh-structured data.
-
-
-```python
-# Load the LFRic single datafile 
-
 from iris.experimental.ugrid.load import PARSE_UGRID_ON_LOAD
-# Note the use of the special context.  This is basically because the Iris mesh functionality is still 'experimental'
-with PARSE_UGRID_ON_LOAD.context():
-    lfric_cubes = iris.load(lfric_filepth)
 ```
 
-```python
-print("n(LFRic-cubes) = ", len(lfric_cubes))
-print("first 10 cubes ...")
-lfric_cubes[:10]
-```
-
-```python
-lfric_rh = lfric_cubes.extract_cube('relative_humidity_at_screen_level')
-
-lfric_rh
-```
-
+<!-- #region -->
 ---
-Or, just to show a faster selective loading ...
+
+The variable `lfric_filepath` is already set up, pointing to a suitable test file.
+
+**Exercise : Load all data from `lfric_filepath`, with the UGRID loading enabled, and print the first 10 cubes.**  
+Use the plain 'load' method, as shown above.  
+NOTE : ***expect this to take a few seconds to complete.***
+
+<details><summary>Sample code solution  <b>click to reveal</b></summary>
 
 ```python
 with PARSE_UGRID_ON_LOAD.context():
-    lfric_rh = iris.load_cube(lfric_filepth, 'relative_humidity_at_screen_level')
+    cubes = iris.load(lfric_)
+
+cubes[:10]
+```
+</details>
+<!-- #endregion -->
+
+```python
+# ... space for user code ...
+
+with PARSE_UGRID_ON_LOAD.context():
+    cubes = iris.load(lfric_filepth)
+
+cubes[:10]
+```
+
+
+**NOTEs :**
+  * putting just `cubes` at the end triggers notebook printing output
+    * this also means you can click on each cube to "expand" it into a detail view -- try it
+  * the effect of `print(cubes)` is different -- try it
+
+<!-- #region -->
+## Loading a single cube
+You can instead load a single cube directly from the file.  
+This is considerably _faster_ in this case, since the whole file contains ~100 data-variables (i.e. diagnostics).
+
+**Load just the cube named `relative_humidity_at_screen_level`, from the same file, and show that.**  
+Hint : it's nicer to use the `load_cube` function
+
+<details><summary>Sample code solution  <b>click to reveal</b></summary>
+
+```python
+with PARSE_UGRID_ON_LOAD.context():
+    lfric_rh = iris.load_cube(lfric_filepth, "relative_humidity_at_screen_level")
 
 lfric_rh
+```
+---
+    
+**NOTEs :**
+  * putting just `cubes` at the end triggers notebook printing output
+  * the effect of `print(cubes)` is different -- try it
+</details>
+<!-- #endregion -->
+
+```python
+with PARSE_UGRID_ON_LOAD.context():
+    lfric_rh = iris.load_cube(lfric_filepth, "relative_humidity_at_screen_level")
+
+lfric_rh
+```
+
+```python
+
 ```
 
 ## What you initially notice about "mesh cubes"
@@ -173,14 +154,14 @@ print("cube.mesh_dim() = ", lfric_rh.mesh_dim())
 <br>
 
 ```python
-#-------------------------------
-# Utility Function
+###-------------------------------
+### Utility Function
 #
 def is_meshcube(cube):
     return cube.mesh is not None
 
 #-------------------------------
-# Testing ...
+### Testing ...
 #
 from iris.tests.stock import realistic_3d
 nonmesh_cube = realistic_3d()
