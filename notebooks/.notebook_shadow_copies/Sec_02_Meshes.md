@@ -63,12 +63,11 @@ plus data variables mapped to the face components.
 Here is an example of what that looks like :--
 
 
-![Picture of nodes and faces](ugrid_variable_faces.svg)
+![Picture of nodes and faces](LFRic_mesh.svg)
 
 
-**NOTE** that, in the above, the faces (polygons) have different numbers of corners.
-
-This does not happen in current LFRic data : the mesh is a "cubesphere" (see later images), and all cells have four corners.
+This demonstrates the relationship between face-numbers, node-numbers and node coordinates.
+Note that no _edges_ are shown here :  In UGRID, and Iris, mesh faces do not depend on edges, but are built only from nodes.
 
 
 ---
