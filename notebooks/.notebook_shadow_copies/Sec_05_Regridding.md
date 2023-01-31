@@ -53,8 +53,8 @@ regridder = MeshToGridESMFRegridder(mesh_cube, grid_cube)
 
 ```python
 # Regrid the mesh cube.
-result = regridder(mesh_cube)
-result
+regridded_orography = regridder(mesh_cube)
+regridded_orography
 ```
 
 The reason this is done in two steps is because initialising a regridder is potentially quite expensive if the grids or meshes involved are large. Once initialised, a regridder can regrid many source cubes (defined on the same source grid/mesh) onto the same target. We can demonstrate this by regridding a different cube using the same regridder.
@@ -73,8 +73,8 @@ mesh_temp
 ```python
 # Regrid the new mesh cube using the same regridder.
 # Note how the time coordinate is also transposed in the result.
-result_2 = regridder(mesh_temp)
-result_2
+regridded_temperature = regridder(mesh_temp)
+regridded_temperature
 ```
 
 We can save time in future runs by saving and loading a regridder with `save_regridder` and `load_regridder`.
@@ -104,7 +104,7 @@ iqplt.pcolormesh(grid_temp[0, 0])
 plt.gca().coastlines()
 plt.show()
 
-iqplt.pcolormesh(result_2[0, 0])
+iqplt.pcolormesh(regridded_temperature[0, 0])
 plt.gca().coastlines()
 plt.show()
 ```
@@ -112,7 +112,8 @@ plt.show()
 We can then plot the difference between the UM data and the data regridded from LFRic. Since all our data is now on a latlon grid we can subtract to find the difference between the regridded LFRic data and equivalent UM data and plot this with matplotlib as normal.
 
 ```python
-temp_diff = result_2 - grid_temp
+temp_diff = regridded_temperature - grid_temp
+temp_diff.long_name = "Difference in temperature"
 
 # We choose a colormap that makes it clear where the differences are.
 iqplt.pcolormesh(temp_diff[0, 0], vmin=-4,vmax=4, cmap="seismic")
@@ -126,8 +127,8 @@ We can also regrid from latlon grids to LFRic style meshes using `GridToMeshESMF
 # Initialise the regridder.
 g2m_regridder = GridToMeshESMFRegridder(grid_cube, mesh_cube)
 # Regrid the grid cube.
-result_3 = g2m_regridder(grid_cube)
-result_3
+orography_on_mesh = g2m_regridder(grid_cube)
+orography_on_mesh
 ```
 
 ```python
@@ -148,13 +149,13 @@ bilinear_regridder = MeshToGridESMFRegridder(mesh_cube, grid_cube, method="bilin
 **Step 2:** Use this regridder to regrid `mesh_cube`.
 
 ```python
-bilinear_result = bilinear_regridder(mesh_cube)
+bilinear_regridded_orography = bilinear_regridder(mesh_cube)
 ```
 
 **Step 3:** Compare this result with the result from the default area weighted conservative regridder.
 
 ```python
-bilinear_diff = bilinear_result - result
+bilinear_diff = bilinear_regridded_orography - regridded_orography
 ```
 
 **Step 4:** Plot the results and the difference using `iris.quickplot` and `matplotlib`.
@@ -163,10 +164,11 @@ bilinear_diff = bilinear_result - result
 import iris.quickplot as iqplt
 import matplotlib.pyplot as plt
 
-iqplt.pcolormesh(result, cmap="terrain")
+iqplt.pcolormesh(regridded_orography, cmap="terrain")
 plt.show()
-iqplt.pcolormesh(bilinear_result, cmap="terrain")
+iqplt.pcolormesh(bilinear_regridded_orography, cmap="terrain")
 plt.show()
+bilinear_diff.long_name = "Difference in altitude"
 iqplt.pcolormesh(bilinear_diff, vmin=-400,vmax=400, cmap="seismic")
 plt.show()
 ```
