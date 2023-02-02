@@ -53,8 +53,8 @@ regridder = MeshToGridESMFRegridder(mesh_cube, grid_cube)
 
 ```python
 # Regrid the mesh cube.
-result = regridder(mesh_cube)
-result
+regridded_orography = regridder(mesh_cube)
+regridded_orography
 ```
 
 The reason this is done in two steps is because initialising a regridder is potentially quite expensive if the grids or meshes involved are large. Once initialised, a regridder can regrid many source cubes (defined on the same source grid/mesh) onto the same target. We can demonstrate this by regridding a different cube using the same regridder.
@@ -73,8 +73,8 @@ mesh_temp
 ```python
 # Regrid the new mesh cube using the same regridder.
 # Note how the time coordinate is also transposed in the result.
-result_2 = regridder(mesh_temp)
-result_2
+regridded_temperature = regridder(mesh_temp)
+regridded_temperature
 ```
 
 We can save time in future runs by saving and loading a regridder with `save_regridder` and `load_regridder`.
@@ -104,7 +104,7 @@ iqplt.pcolormesh(grid_temp[0, 0])
 plt.gca().coastlines()
 plt.show()
 
-iqplt.pcolormesh(result_2[0, 0])
+iqplt.pcolormesh(regridded_temperature[0, 0])
 plt.gca().coastlines()
 plt.show()
 ```
@@ -112,7 +112,8 @@ plt.show()
 We can then plot the difference between the UM data and the data regridded from LFRic. Since all our data is now on a latlon grid we can subtract to find the difference between the regridded LFRic data and equivalent UM data and plot this with matplotlib as normal.
 
 ```python
-temp_diff = result_2 - grid_temp
+temp_diff = regridded_temperature - grid_temp
+temp_diff.long_name = "Difference in temperature"
 
 # We choose a colormap that makes it clear where the differences are.
 iqplt.pcolormesh(temp_diff[0, 0], vmin=-4,vmax=4, cmap="seismic")
@@ -126,8 +127,8 @@ We can also regrid from latlon grids to LFRic style meshes using `GridToMeshESMF
 # Initialise the regridder.
 g2m_regridder = GridToMeshESMFRegridder(grid_cube, mesh_cube)
 # Regrid the grid cube.
-result_3 = g2m_regridder(grid_cube)
-result_3
+orography_on_mesh = g2m_regridder(grid_cube)
+orography_on_mesh
 ```
 
 ```python
@@ -135,38 +136,84 @@ result_3
 # Use %%timeit to investigate how much time it takes to initialise a regridder vs applying the regridder.
 ```
 
+<!-- #region -->
 ## Exercise 1: Comparing regridding methods
 
 By default, regridding uses the area weighted `conservative` method. We can also use the bilinear regridding method.
 
 **Step 1:** Use the `method="bilinear"` keyword to initialise a bilinear `MeshToGridESMFRegridder` with arguments `mesh_cube` and `grid_cube`.
 
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+bilinear_regridder = MeshToGridESMFRegridder(mesh_cube, grid_cube, method="bilinear")
+```
+</details>
+<!-- #endregion -->
+
 ```python
 bilinear_regridder = MeshToGridESMFRegridder(mesh_cube, grid_cube, method="bilinear")
 ```
 
+<!-- #region -->
 **Step 2:** Use this regridder to regrid `mesh_cube`.
 
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
 ```python
-bilinear_result = bilinear_regridder(mesh_cube)
+bilinear_regridded_orography = bilinear_regridder(mesh_cube)
+```
+</details>
+<!-- #endregion -->
+
+```python
+bilinear_regridded_orography = bilinear_regridder(mesh_cube)
 ```
 
+<!-- #region -->
 **Step 3:** Compare this result with the result from the default area weighted conservative regridder.
 
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
 ```python
-bilinear_diff = bilinear_result - result
+bilinear_diff = bilinear_regridded_orography - regridded_orography
+```
+</details>
+<!-- #endregion -->
+
+```python
+bilinear_diff = bilinear_regridded_orography - regridded_orography
 ```
 
+<!-- #region -->
 **Step 4:** Plot the results and the difference using `iris.quickplot` and `matplotlib`.
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
 
 ```python
 import iris.quickplot as iqplt
 import matplotlib.pyplot as plt
 
-iqplt.pcolormesh(result, cmap="terrain")
+iqplt.pcolormesh(regridded_orography, cmap="terrain")
 plt.show()
-iqplt.pcolormesh(bilinear_result, cmap="terrain")
+iqplt.pcolormesh(bilinear_regridded_orography, cmap="terrain")
 plt.show()
+bilinear_diff.long_name = "Difference in altitude"
+iqplt.pcolormesh(bilinear_diff, vmin=-400,vmax=400, cmap="seismic")
+plt.show()
+```
+</details>
+<!-- #endregion -->
+
+```python
+import iris.quickplot as iqplt
+import matplotlib.pyplot as plt
+
+iqplt.pcolormesh(regridded_orography, cmap="terrain")
+plt.show()
+iqplt.pcolormesh(bilinear_regridded_orography, cmap="terrain")
+plt.show()
+bilinear_diff.long_name = "Difference in altitude"
 iqplt.pcolormesh(bilinear_diff, vmin=-400,vmax=400, cmap="seismic")
 plt.show()
 ```
@@ -179,6 +226,7 @@ plt.show()
 # - demonstrate that the data in the grid file was probably a result of regridding from the mesh file.
 ```
 
+<!-- #region -->
 ## Exercise 2: Zonal means
 
 For a latlon cube, a common operation is to collapse over longitude by taking an average. This is not possible for an LFRic style mesh cube since there is no independent longitude dimension to collapse. While it is possible to regrid to a latlon cube and then collapse, this introduces an additional step to the process. Instead, it is possible to simplify this into a single step by considering this as a regridding operation where the target cube contains multiple latitude bands.
@@ -187,6 +235,19 @@ A zonal mean is the area weighted average over a defined region or sequence of r
 Calculating zonal means can be done as a regridding operation where the zone is defined by the target cube. This can involve a target cube with a single cell or, as in this example, a number of cells along the latitude dimension.
 
 **Step 1:** Define a latitude coordinate whose bounds are `[[-90, -60], [-60, -30], [-30, 0], [0, 30], [30, 60], [60, 90]]`. Remember to set the standard name to be `"latitude"` and the units to be `"degrees"`
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+lat_bands = DimCoord(
+    [-75, -45, -15, 15, 45, 75],
+    bounds=[[-90, -60], [-60, -30], [-30, 0], [0, 30], [30, 60], [60, 90]],
+    standard_name="latitude",
+    units="degrees"
+)
+```
+</details>
+<!-- #endregion -->
 
 ```python
 lat_bands = DimCoord(
@@ -197,13 +258,34 @@ lat_bands = DimCoord(
 )
 ```
 
+<!-- #region -->
 **Step 2:** Define a longitude coordinate whose bounds are `[[-180, 180]]`. Remember to set the standard name to be `"longitude"` and the units to be `"degrees"`
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+lon_full = DimCoord(0, bounds=[[-180, 180]], standard_name="longitude", units="degrees")
+```
+</details>
+<!-- #endregion -->
 
 ```python
 lon_full = DimCoord(0, bounds=[[-180, 180]], standard_name="longitude", units="degrees")
 ```
 
+<!-- #region -->
 **Step 3:** Create a six celled cube (i.e. `Cube([[0, 0, 0, 0, 0, 0]])`) and attach the latitude and longitude coordinates to it.
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+lat_band_cube = Cube([[0, 0, 0, 0, 0, 0]])
+lat_band_cube.add_dim_coord(lat_bands, 1)
+lat_band_cube.add_dim_coord(lon_full, 0)
+lat_band_cube
+```
+</details>
+<!-- #endregion -->
 
 ```python
 lat_band_cube = Cube([[0, 0, 0, 0, 0, 0]])
@@ -212,6 +294,7 @@ lat_band_cube.add_dim_coord(lon_full, 0)
 lat_band_cube
 ```
 
+<!-- #region -->
 **Step 4:** Create a regridder from `mesh_cube` to the single celled cube you created.
 
 *Note:* ESMF represents all lines as sections of great circles rather than lines of constant latitude. This means that `MeshToGridESMFRegridder` would  fail to properly handle such a large cell. We can solve this problem by using the `resolution` keyword. By providing a `resolution`, we divide each cell into as many sub-cells each bounded by the same latitude bounds.
@@ -220,11 +303,32 @@ If we initialise a regridder with `MeshToGridESMFRegridder(src_mesh, tgt_grid, r
 
 Initialise a `MeshToGridESMFRegridder` with `mesh_cube` and your single celled cube as its arguments and with a `resolution=10` keyword.
 
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+lat_band_mean_calculator_10 = MeshToGridESMFRegridder(mesh_cube, lat_band_cube, resolution=10)
+```
+</details>
+<!-- #endregion -->
+
 ```python
 lat_band_mean_calculator_10 = MeshToGridESMFRegridder(mesh_cube, lat_band_cube, resolution=10)
 ```
 
+<!-- #region -->
 **Step 5:** Apply this regridder to `mesh_cube` and print the data from this result (i.e. `print(result_cube.data)`) and plot with `iqplt.pcolormesh`.
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+lat_band_mean_10 = lat_band_mean_calculator_10(mesh_cube)
+print(lat_band_mean_10.data)
+iqplt.pcolormesh(lat_band_mean_10)
+plt.gca().coastlines()
+plt.show()
+```
+</details>
+<!-- #endregion -->
 
 ```python
 lat_band_mean_10 = lat_band_mean_calculator_10(mesh_cube)
@@ -234,9 +338,24 @@ plt.gca().coastlines()
 plt.show()
 ```
 
+<!-- #region -->
 **Step 6:** Repeat step 4 and 5 for `resolution=100`.
 
 Note the difference in value. Also note that it takes more time to initialise a regridder with higher resolution. Higher resolutions ought to be more accurate but there is a tradeoff between performance and accuracy.
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+lat_band_mean_calculator_100 = MeshToGridESMFRegridder(mesh_cube, lat_band_cube, resolution=100)
+lat_band_mean_100 = lat_band_mean_calculator_100(mesh_cube)
+print(lat_band_mean_100.data)
+
+iqplt.pcolormesh(lat_band_mean_100)
+plt.gca().coastlines()
+plt.show()
+```
+</details>
+<!-- #endregion -->
 
 ```python
 lat_band_mean_calculator_100 = MeshToGridESMFRegridder(mesh_cube, lat_band_cube, resolution=100)
@@ -248,9 +367,31 @@ plt.gca().coastlines()
 plt.show()
 ```
 
+<!-- #region -->
 **Step 7:** Repeat steps 1 - 6 for latitude bounds `[[-90, 90]]`, longitude bounds `[[-40, 40]]` and resolutions 2 and 10.
 
 *Note:* Unlike lines of constant latitude, lines of constant longitude are already great circle arcs.This might suggest that the `resolution` argument is unnnecessary, however these arcs are 180 degrees which ESMF is unable to represent so we still need a `resolution` of at least 2. In this case, an increase in resolution will not affect the accuracy since a resolution of 2 will already have maximum accuracy. Note how the results are the equal.
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+lat_full = DimCoord(0, bounds=[[-90, 90]], standard_name="latitude", units="degrees")
+lon_band = DimCoord(0, bounds=[[-40, 40]], standard_name="longitude", units="degrees")
+
+lon_band_cube = Cube([[0]])
+lon_band_cube.add_dim_coord(lat_full, 0)
+lon_band_cube.add_dim_coord(lon_band, 1)
+
+lon_band_mean_calculator_2 = MeshToGridESMFRegridder(mesh_cube, lon_band_cube, resolution=2)
+lon_band_mean_2 = lon_band_mean_calculator_2(mesh_cube)
+print(lon_band_mean_2.data)
+
+lon_band_mean_calculator_10 = MeshToGridESMFRegridder(mesh_cube, lon_band_cube, resolution=10)
+lon_band_mean_10 = lon_band_mean_calculator_10(mesh_cube)
+print(lon_band_mean_10.data)
+```
+</details>
+<!-- #endregion -->
 
 ```python
 lat_full = DimCoord(0, bounds=[[-90, 90]], standard_name="latitude", units="degrees")
@@ -269,11 +410,23 @@ lon_band_mean_10 = lon_band_mean_calculator_10(mesh_cube)
 print(lon_band_mean_10.data)
 ```
 
+<!-- #region -->
 ## Exercise 3: Hovmoller plots
 
 If we have data on aditional dimensions, we can use the same approach as exercise 2 to produce a Hovmoller diagram. That is, if we have data that varies along time we can take the area weighted mean over latitude bands and plot the data aginst latitude and time (or similarly, we can plot against longitude and time).
 
 **Step 1:** Load a cube with humidity data using the `testdata_fetching` function `lfric_rh_alltimes_3d`.
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+from testdata_fetching import lfric_rh_alltimes_3d
+
+humidity_cube = lfric_rh_alltimes_3d()
+humidity_cube
+```
+</details>
+<!-- #endregion -->
 
 ```python
 from testdata_fetching import lfric_rh_alltimes_3d
@@ -282,7 +435,19 @@ humidity_cube = lfric_rh_alltimes_3d()
 humidity_cube
 ```
 
+<!-- #region -->
 **Step 2:** Create a target cube whose latitude coordinate is derived from the UM cube loaded from `um_orography` and whose longitude coordinate has bounds `[[-180, 180]]`. This can be done by slicing a cube derived from `um_orography` (using the slice `[:, :1]` so that this dimension isnt collapsed), removing the longitude coordinate and adding a longitude coordinate with bounds `[[-180, 180]]` (you can reuse the coordinate from exercise 2).
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+target_cube_lats = grid_cube[:,:1]
+target_cube_lats.remove_coord("longitude")
+target_cube_lats.add_dim_coord(lon_full, 1)
+target_cube_lats
+```
+</details>
+<!-- #endregion -->
 
 ```python
 target_cube_lats = grid_cube[:,:1]
@@ -300,7 +465,18 @@ target_cube_lats
 # target_cube_lons
 ```
 
+<!-- #region -->
 **Step 3:** Create a `MeshToGridESMFRegridder` regridder from the slice of the humidity cube onto the target cube. Set the resolution keyword to 500 (this should be good balance of accuracy and performance). Use this regridder to create a resulting cube.
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+um_lat_band_mean_calculator = MeshToGridESMFRegridder(humidity_cube, target_cube_lats, resolution=500)
+um_lat_band_means = um_lat_band_mean_calculator(humidity_cube)
+um_lat_band_means
+```
+</details>
+<!-- #endregion -->
 
 ```python
 um_lat_band_mean_calculator = MeshToGridESMFRegridder(humidity_cube, target_cube_lats, resolution=500)
@@ -318,7 +494,20 @@ um_lat_band_means
 # um_lon_band_means
 ```
 
+<!-- #region -->
 **Step 4:** Plot the data in the resulting cube. This can be done with `iqplt.pcolormesh`. Note that the resulting cube will have an unnecessary dimension which will have to be sliced (using `[:, :, 0]`). Note that extra steps can be taken to format the dates for this plot.
+
+<details><summary>Sample code solution : <b>click to reveal</b></summary>
+
+```python
+import matplotlib.dates as mdates
+# We use a colormap which highlights fine details.
+iqplt.pcolormesh(um_lat_band_means[:, :, 0])
+plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%D"))
+plt.show()
+```
+</details>
+<!-- #endregion -->
 
 ```python
 import matplotlib.dates as mdates
