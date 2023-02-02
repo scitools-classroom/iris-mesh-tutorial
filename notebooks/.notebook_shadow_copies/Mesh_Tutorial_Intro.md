@@ -44,8 +44,8 @@ whenever something seems to be taking a long time with no result...
    * [01 - Load and Examine some LFRic data](./Sec_01_Load_and_Examine.ipynb)
    * [02 - Mesh concepts and Meshes in Iris](./Sec_02_Meshes.ipynb)
    * [03 - Plotting and Visualisation](./Sec_03_Plotting.ipynb)
-   * [04 - Regional Extraction](./Sec_04_RegionExtraction.ipynb)
-   * [05 - Regridding and UM data comparison](./Sec_05_Regridding.ipynb)
+   * [04 - Regridding and UM data comparison](./Sec_05_Regridding.ipynb)
+   * [05 - Regional Extraction](./Sec_04_RegionExtraction.ipynb)
    
 
 
