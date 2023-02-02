@@ -108,7 +108,13 @@ pv.plot() #jupyter_backend='static')
 
 ```
 
-### Todo : examine mesh content + demonstrate APIs
+### Investigate the Iris mesh content
+
+Details of how the Iris mesh is constructed are not usually relevant to working with the cube data in Iris, nor to plotting it with PyVista.  
+So that is beyond the scope of an introductory tutorial.  
+
+However, for those interested, bonus material is provided showing some of this [in this additional notebook](./Mesh_Connectivities_demo.ipynb)
+
 
 
 ## Plotting mesh data : minimal 3D visualisation of a 2D cube
