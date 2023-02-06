@@ -532,3 +532,14 @@ plt.show()
 # Use this regridder to compare how well bilinear regridding and area weighted
 # regridding preserve area weighted mean after round tripping.
 ```
+
+```python
+
+```
+
+## Next notebook
+See the next section : [05 - Regional Extraction](./Sec_05_RegionExtraction.ipynb)
+
+```python
+
+```

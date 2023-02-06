@@ -94,67 +94,122 @@ from testdata_fetching import lfric_rh_singletime_2d
 lfric_rh = lfric_rh_singletime_2d()
 ```
 
-**Print the cube, and its `cube.mesh`**
+**Print the cube**
 
-```python
-print(lfric_rh)
-print('\n----\n')
-print(lfric_rh.mesh)
+```python tags=[]
+lfric_rh
 ```
 
-### Details of the Iris mesh content
+### What is special about "mesh cubes" ?
 
-How Iris represents the mesh is not usually very relevant to working with cube data in Iris, nor to plotting it with PyVista.  
+Compare the above to some UM data (e.g. `testdata_fetching.um_temp()`).
+
+You should find that an 'unstructured' cube has some extra properties : `cube.mesh`, `cube.location` and `cube.mesh_dim()`  
+
+
+```python
+print("cube.mesh :")
+print(lfric_rh.mesh)
+print("\n-------")
+print("cube.location = ", lfric_rh.location)
+print(lfric_rh.mesh_dim())
+print("\n-------")
+help(lfric_rh.mesh_dim)
+print("cube.mesh_dim() = ", lfric_rh.mesh_dim())
+```
+
+---
+**Additional Note:**  
+As previously mentioned, every Iris mesh cube has a "mesh dimension".
+This is often the last cube dimension, and is typically "anonymous" -- i.e. it has no dimension coordinate.
+
+
+## Details of the Iris mesh content
+
+Exactly ***how*** Iris represents a mesh is not usually very relevant to working with cube data in Iris, nor to plotting it with PyVista.  
 So that is beyond the scope of an introductory tutorial.  
 
 However, for those interested, there is a bonus notebook showing some of this : ["Mesh_Connectivities_demo.ipynb"](./Mesh_Connectivities_demo.ipynb)
 
 
+<!-- #region tags=[] -->
+---
 
-### Plotting mesh data : minimal 3D visualisation of a 2D cube
+## Exercises : mesh data
+
+### Ex.1 : How to check whether a cube has structured or mesh-based data
+<!-- #endregion -->
+
+```python tags=[]
+# ... space for user solution ...
+```
+
+```python tags=[]
+#
+# SAMPLE CODE SOLUTION
+#
 
 
-This is just a quick preview of the next section (Sec_03_Plotting), to show a basic 3D plot.
+# Utility Function
+#
+def is_meshcube(cube):
+    return cube.mesh is not None
 
+#-------------------------------
+### Testing ...
+#
+from iris.tests.stock import realistic_3d
+nonmesh_cube = realistic_3d()
+print('Cube: ', repr(nonmesh_cube), '\n  - is_meshcube ?', is_meshcube(nonmesh_cube))
 
-<!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
-**Convert a cube to PyVista form for plotting**
+print()
+from iris.tests.stock.mesh import sample_mesh_cube
+mesh_cube = sample_mesh_cube()
+print('Cube: ', repr(mesh_cube), '\n  - is_meshcube ?', is_meshcube(mesh_cube))
+```
 
-There are as yet *no* facilities in Iris for plotting unstructed cubes.  
-We can do that using PyVista, but we need first to convert the data to a PyVista format.  
-
-So first,  
-**Import the routine** `pv_conversions.pv_from_lfric_cube` **(provided here in the tutorial).  
-And call that..**
-
+<!-- #region tags=[] -->
+---
+***try this also*** with the 'lfric_rh' cube
 <!-- #endregion -->
 
 ```python
-from pv_conversions import pv_from_lfric_cube
 
-pv = pv_from_lfric_cube(rh_t0)
 ```
 
-This produces a PyVista ["PolyData" object](https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.html#pyvista-polydata).  
-Which is a thing we can plot, by simply calling its `.plot()` method.
+### Question : what is `cube.mesh_dim` for ?
 
 
----
+<details><summary>Sample Answer : <b>click to reveal</b></summary>
+It is a function which you call, returning an integer.
+<br/>The result tells you which cube dimension is the mesh dimension  -- that is, the cube dimension which indexes the individual elements of the mesh
 
-**Call the `plot` routine of the PolyData object.  An output should appear.**
+See [Iris API docs for `Cube.mesh_dim`](https://scitools-iris.readthedocs.io/en/latest/generated/api/iris/cube.html#iris.cube.Cube.mesh_dim)
 
-```python
-pv.plot()
-```
+</details>
 
-**NOTES**:
-  * this plot is interactive -- try dragging to rotate, and the mouse scroll-wheel to zoom
-  * this obviously causes some clutter and uses up some space (e.g. you can't easily scroll past it)  
-    * To ***remove*** a plot output, use "Clear Output" from the "Edit" menu (or from right-click on the cell)
-  * alternatively, set the keyword `jupyter_backend='static'` in the command, for output as a plain image
 
-There are a lot more keywords available to [the `PolyData.plot()` method](https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.plot.html), but it is not ideal to overcomplicate these calls.  
-Finer control is better achieved in a different ways :  See more detail on plotting in [the Plotting section](./Sec_03_Plotting.ipynb).
+### Question : what does `cube.location` mean ?
+
+<details><summary>Sample answer : <b>click to reveal</b></summary>
+It returns a string, "node", "edge" or "face", indicating the type of mesh element which the cube data is mapped to.
+
+See in [Iris "Mesh Support" docs](https://scitools-iris.readthedocs.io/en/latest/further_topics/ugrid/data_model.html?highlight=location#the-basics)
+
+</details>
+
+
+### Additional questions to consider ...
+
+  * what does `cube.mesh_dim` do when a cube *has* no mesh ?
+        <details><summary>Sample answer : <b>click to reveal</b></summary>
+    It returns `None`.
+    </details>
+  * what happens if there is more than one mesh, or mesh dimension ?
+    <details><summary>Sample answer : <b>click to reveal</b></summary>
+    A bit of a "trick question" !  
+    </br>In UGRID, a data-variable can have at most <i>one</i> location and mesh.  Therefore, since each Iris cube represents a CF data-variable, it can only have one mesh, and one mesh dimension -- that of its location in the mesh.
+    </details>
 
 
 ## Next notebook

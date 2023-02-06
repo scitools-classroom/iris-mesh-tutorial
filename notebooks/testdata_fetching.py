@@ -20,7 +20,8 @@ def switch_data(use_newer_smaller_c48_data=True):
 
     if use_newer_smaller_c48_data:
         # newer data
-        data_path = Path('/home/h03/bfock/scratch/example_data_u-ct674/') # add 20210324T0000Z/
+        data_path = Path('/home/h03/bfock/scratch/example_data_u-ct674/')
+        # data_path = Path('/home/h03/bfock/scratch/example_data_u-ct674/20210324T0000Z/')
     else:
         # older data
         data_path = Path('/scratch/sworsley/lfric_data')

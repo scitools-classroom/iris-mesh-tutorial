@@ -20,9 +20,11 @@ For instance, UM data has data and coordinates with X and Y dimensions, correspo
 Therefore, we can slice out a rectangular range of X and Y indices, e.g. `my_datacube[..., 10:40, 4:77]` and the result is some contiguous region of the globe within a defined range of latitude+longitude.
 
 However, the unstructured mesh does not visit locations on the globe in any particular, simple regular pattern.  So crucially, a slice of data from the (now 1-D) arrays is not a contiguous geographical region.  And conversely a contiguous region of the data is generally not contained in a contiguous range of data indices.  
-( *TODO: picture of this ?* )
+***For a demonstration of that :*** see the previous diagram showing numbering of nodes+faces around an LFRic cubesphere corner, [here](./LFRic_mesh.svg).
 
-So we must use geographical calculations to extract mesh data within a required region.  
+---
+
+So, we must use geographical calculations to extract mesh data within a required region.  
 Since this is a geographical concept, Geovista provides support for it.  
 This is also a good match since, with larger data this can become quite compute-intensive :
 Processing via VTK should be performant and scalable, and can benefit from GPU accelaration.
@@ -49,9 +51,8 @@ from pv_conversions import pv_from_lfric_cube
 pv_global_rh = pv_from_lfric_cube(lfric_rh)
 ```
 
----
 
-Now we will create a tool to extract over a desired region.
+## Create a 'BBox' tool to extract over a desired region.
 
 
 **Import the class `BBox` from `geovista.geodesic`, and make one...**  
@@ -81,7 +82,8 @@ bbox = BBox(lons=[0, 70, 70, 0], lats=[-25, -25, 45, 45])
 
 ---
 
-**Now "apply" the BBox to the global mesh data, by passing it to the `BBox.enclosed` method.**  
+## Apply the BBox to data
+Operate on the global mesh data, by passing it to the `BBox.enclosed` method.**  
 And show the resulting object printout.
 
 ```python
@@ -93,7 +95,8 @@ pv_regional_rh
 You can see that this new (regional) PolyData has fewer cells than the original (global) one.
 
 ---
-**Now plot this to see what it looks like.**  
+
+### Plot this to see what it looks like.
 Note : in this case, it will be very useful to add coastlines for reference.
 Use the techniques from [Sec#2 Plotting - Additional features](./Sec_03_Plotting.ipynb#Additional-features).
 
@@ -122,7 +125,14 @@ However, the operation is possible, and may be instructive.
 So, for those interested, there is an extra notebook ["MeshCube_Extraction.ipynb"](./MeshCube_Extraction.ipynb), showing how this is done.
 
 
+```python
 
+```
+
+## Next notebook
+
+This is the end of the standard tutorial content.  
+There is also some more detailed bonus content which you might be interested in : [see list here](./Mesh_Tutorial_Intro.ipynb#bonus_and_additional_material)
 
 ```python
 

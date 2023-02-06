@@ -22,6 +22,9 @@ import iris
 
 # import local routines handling access to some test data
 from testdata_fetching import lfric_filepth
+# from testdata_fetching import data_path
+# lfric_filepth = data_path / '20210324T0000Z_lf_ugrid_plev.nc'
+# assert lfric_filepth.exists()
 ```
 
 <!-- #region -->
@@ -41,188 +44,89 @@ with PARSE_UGRID_ON_LOAD.context():
     selected_cubes = iris.load_cubes(path, cube_constraints)
 
 ```
-
-**Exercise : first import the `PARSE_UGRID_ON_LOAD` object from iris.experimental.ugrid.load**
 <!-- #endregion -->
 
+### Enable UGRID loading
+We make some imports.
+
+Most importantly, we need the `PARSE_UGRID_ON_LOAD` object from `iris.experimental.ugrid.load`
+
 ```python
+import iris
 from iris.experimental.ugrid.load import PARSE_UGRID_ON_LOAD
 ```
 
-<!-- #region -->
----
+### Load UGRID data from netCDF files.
+The variable `lfric_filepath` is defined in the tutorial helper code `testdata_fetching`: 
+It points to a suitable test file.
 
-The variable `lfric_filepath` is already set up, pointing to a suitable test file.
+In this case, we use the plain `iris.load` function, as shown above.  
 
-**Exercise : Load all data from `lfric_filepath`, with the UGRID loading enabled, and print the first 10 cubes.**  
-Use the plain 'load' method, as shown above.  
-NOTE : ***expect this to take a few seconds to complete.***
-
-<details><summary>Sample code solution  <b>click to reveal</b></summary>
+NOTE : ***There are a lot of cubes:  Expect this to take a few seconds, and only show a few of the cubes.***
 
 ```python
-with PARSE_UGRID_ON_LOAD.context():
-    cubes = iris.load(lfric_)
 
-cubes[:10]
 ```
-</details>
-<!-- #endregion -->
+
 
 ```python
-# ... space for user code ...
-
+print('loading...')
 with PARSE_UGRID_ON_LOAD.context():
     cubes = iris.load(lfric_filepth)
 
-cubes[:10]
+print(f'\n... Loaded {len(cubes)} cubes.')
+print('Showing first 4:')
+cubes[:4]
 ```
 
 
 **NOTEs :**
   * putting just `cubes` at the end triggers notebook printing output
-    * this also means you can click on each cube to "expand" it into a detail view -- try it
-  * the effect of `print(cubes)` is different -- try it
+    * this also means you can click on each cube to "expand" it into a detail view -- ***try this***
+  * the effect of `print(cubes)` is different -- ***try this***
 
-<!-- #region -->
+
 ## Loading a single cube
 You can instead load a single cube directly from the file.  
-This is considerably _faster_ in this case, since the whole file contains ~100 data-variables (i.e. diagnostics).
+This is considerably _faster_ in many cases, since a typical file may contain 100s data-variables (i.e. diagnostics).
 
-**Load just the cube named `relative_humidity_at_screen_level`, from the same file, and show that.**  
+### Load just "relative_humidity_wrt_water" data
+(From the same file)  
 Hint : it's nicer to use the `load_cube` function
 
-<details><summary>Sample code solution  <b>click to reveal</b></summary>
-
 ```python
 with PARSE_UGRID_ON_LOAD.context():
-    lfric_rh = iris.load_cube(lfric_filepth, "relative_humidity_at_screen_level")
-
-lfric_rh
-```
----
-    
-**NOTEs :**
-  * putting just `cubes` at the end triggers notebook printing output
-  * the effect of `print(cubes)` is different -- try it
-</details>
-<!-- #endregion -->
-
-```python
-with PARSE_UGRID_ON_LOAD.context():
-    lfric_rh = iris.load_cube(lfric_filepth, "relative_humidity_at_screen_level")
+    lfric_rh = iris.load_cube(lfric_filepth, "relative_humidity_wrt_water")
 
 lfric_rh
 ```
 
-```python
+NOTEs :
+  * putting just the `lfric_rh` variable at the end triggers notebook printing output
+  * the effect of `print(lfric_rh)` is different -- ***try this***
 
-```
-
-## What you initially notice about "mesh cubes"
-
-The cube printout has a "Mesh" section, which displays the mesh info.
-
-The cube itself now has some extra properties : `cube.mesh`, `cube.location` and `cube.mesh_dim()`  
-(these are otherwise all `None`)
-
-```python
-print("cube.mesh :")
-print(lfric_rh.mesh)
-print("\n-------")
-print("cube.location = ", lfric_rh.location)
-print(lfric_rh.mesh_dim())
-print("\n-------")
-help(lfric_rh.mesh_dim)
-print("cube.mesh_dim() = ", lfric_rh.mesh_dim())
-```
 
 ```python
 
 ```
 
-<!-- #region tags=[] -->
----
+## What is notable about "mesh cubes"
 
-## Exercise: identifying mesh data
-**How, in your code, could you check whether a cube has structured or mesh-based data ?**
+In the cube printout above, _compared to regular UM-style data_, you can see that it has an additional section in the cube printout called "Mesh", which displays the mesh-specific info.  
 
----
+The cube itself also now has some extra properties : `cube.mesh`, `cube.location` and `cube.mesh_dim()`  
+(which are otherwise all `None`)
 
-<details><summary><b>Sample code solution :</b> "check whether cube has structured data ?" <b>click to reveal</b></summary>
+Cubes with a mesh are known in Iris as "unstructured cubes" or "mesh cubes.  
+They also always have a specific "mesh dimension":  In the above example it is the _last_ cube dimension.
 
-<br>
-
-```python
-###-------------------------------
-### Utility Function
-#
-def is_meshcube(cube):
-    return cube.mesh is not None
-
-#-------------------------------
-### Testing ...
-#
-from iris.tests.stock import realistic_3d
-nonmesh_cube = realistic_3d()
-print('Cube: ', repr(nonmesh_cube), '\n  - is_meshcube ?', is_meshcube(nonmesh_cube))
-
-print()
-from iris.tests.stock.mesh import sample_mesh_cube
-mesh_cube = sample_mesh_cube()
-print('Cube: ', repr(mesh_cube), '\n  - is_meshcube ?', is_meshcube(mesh_cube))
-
-```
----
-    
-**NOTE :**
-  * **Try this code**, by pasting it into a code cell + running ...
-  * try it also with the 'lfric_rh' cube
-</details>
-<!-- #endregion -->
-
-```python
-# (space for user commands)
-#  . . .
-```
-
-## Question : what is `cube.mesh_dim` for ?
-
-
-<details><summary><b>Sample Answer :</b> what is cube.mesh_dim for ? <b>click to reveal</b></summary>
-It is a function which you call, returning an integer.
-<br/>The result tells you which cube dimension is the mesh dimension  -- that is, the cube dimension which indexes the individual elements of the mesh
-
-See [Iris API docs for `Cube.mesh_dim`](https://scitools-iris.readthedocs.io/en/latest/generated/api/iris/cube.html#iris.cube.Cube.mesh_dim)
-
-</details>
-
-
-## Question : what does `cube.location` mean ?
-
-<details><summary>Sample answer : <b>click to reveal</b></summary>
-It returns a string, "node", "edge" or "face", indicating the type of mesh element which the cube data is mapped to.
-
-See in [Iris "Mesh Support" docs](https://scitools-iris.readthedocs.io/en/latest/further_topics/ugrid/data_model.html?highlight=location#the-basics)
-
-</details>
-
-
-## Additional questions to consider ...
-
-  * what does `cube.mesh_dim` do when a cube *has* no mesh ?
-        <details><summary>Sample answer : <b>click to reveal</b></summary>
-    It returns `None`.
-    </details>
-  * what happens if there is more than one mesh, or mesh dimension ?
-    <details><summary>Sample answer : <b>click to reveal</b></summary>
-    A bit of a "trick question" !  
-    </br>In UGRID, a data-variable can have at most <i>one</i> location and mesh.  Therefore, since each Iris cube represents a CF data-variable, it can only have one mesh, and one mesh dimension -- that of its location in the mesh.
-    </details>
 
 ```python
 
 ```
+
+## Next notebook
+See the next section : [02 - Mesh concepts and Meshes in Iris](./Sec_02_Meshes.ipynb)
 
 ```python
 
