@@ -12,39 +12,38 @@ jupyter:
     name: python3
 ---
 
-# Section 3 : 3d visualisation and plotting
+# Section 3 : 3D visualisation and plotting
 
-Schema :
-  * Introduce Geovista
-  * Explain context of 3D and "traditional" matplotlib-based plotting
+Here we explain the use of 3D plotting, and introduce GeoVista and PyVista
+
 
 
 ## 3D visualisation
 
-While LFRic data can be presented in 2D plots with a map projection, it is often more profitable way to explore it with a 3D viewer.  
+Unlike UM data, which is mostly plotted on a map projection, the most usual way to plot LFRic data is in a 3D viewer.  
 
-There are a few reasons for this :
-  1. the LFRic model grid does not follow a 2d, lat-lon aligned structure (unlike UM)
-  2. LFRic data is now tending to be too large for matplotlib-style plotting (~6 million cells)
+There are a few key reasons for this :
+  1. LFRic gridcells are not lat-lon aligned like the UM, so 2D plotting is not such a direct operation
+  2. LFRic data often has too many cells for easy plotting with matplotlib
 
 
-```python tags=[]
-# Essential setup
-# %matplotlib inline
-# import pyvista as pv
-# pv.rcParams["use_ipyvtk"] = True
-```
 
 ## What Geovista is for
 
-  * **VTK** : highly mature 3D visualisation library (C++)
-  * **PyVista** : VTK for normal humans (in Python)
-  * **Geovista** : geolocation for PyVista
+GeoVista adds geo-location facilities to PyVista, allowing us to plot geolocated data in a 3D view.
+
+The key supporting softweare components are these (***follow links for more detail***):
+  * [**VTK**](https://vtk.org/) : highly mature 3D visualisation library (C++)
+  * [**PyVista**](https://pyvista.org/) : VTK for Python
+  * [**GeoVista**](https://github.com/bjlittle/geovista#readme) : geolocation for PyVista
      * map projections + transforms
      * geolocated data and regions
      * coastlines
 
 
+## Geovista basic demo : an interactive plot of ocean data
+
+A simple self-contained demonstration
 
 ```python
 # Import things from Geovista
@@ -59,22 +58,14 @@ sample = um_orca2()
 ```
 
 ```python
-sample.lats.shape
-```
-
-```python
-# Handy routine
+# A local utility routine
 import display_demo_routines
-from importlib import reload
-reload(display_demo_routines)
 
 from display_demo_routines import popup_2d_data_xx_yy
-
 ```
 
-## Geovista basic demo : an interactive plot of ocean data
-
 ```python
+# launch
 popup_2d_data_xx_yy(sample, "ORCA test data")
 ```
 
@@ -88,7 +79,7 @@ popup_2d_data_xx_yy(sample, "ORCA test data")
 
 
 
-## Create a plotter, and display 3D visualisation
+## Create a plotter to display 3D visualisation of data from Iris
 
 The above example shows some interesting features, but it is only a 'potted' demonstration.  
 Let's grab some actual LFRic data and examine the actual plotting mechanism in a bit more detail.  
@@ -98,7 +89,8 @@ The simplest way, as seen in [Sec#02 - Quick 3d plotting](./Sec_02_Meshes.ipynb#
 For more control, we need to deal with the GeoVista/PyVista `Plotter` object.  
 The full process for this requires a number of several discrete steps ...
 
-**(1) First load in the same 2D 'relative_humidity' datacube we loaded back in [Section#02 "Fetch some sample data"](./Sec_02_Meshes.ipynb#Fetch-some-sample-unstructured-data,-as-used-in-Section#01)**
+### Load a 2D 'relative_humidity' cube
+This is the same cube we loaded back in [Section#02 "Fetch some sample data"](./Sec_02_Meshes.ipynb#Fetch-some-sample-unstructured-data,-as-used-in-Section#01)**
 
 ```python
 # TODO: remove when switched to fulltime lower-res test data
@@ -111,14 +103,26 @@ from testdata_fetching import lfric_rh_singletime_2d
 lfric_rh = lfric_rh_singletime_2d()
 ```
 
----
 
-**(2) convert the Iris cube to a PyVista `PolyData`, as in [Section#02 "Convert a cube to PyVista form"](./Sec_02_Meshes.ipynb#Convert-a-cube-to-PyVista-form-for-plotting)**
+### Convert the Iris cube to a PyVista `PolyData`
+
+Use the `pv_conversions.pv_from_lfric_cube` utility routine from the tutorial, as already seen in [Section#02 "Convert a cube to PyVista form"](./Sec_02_Meshes.ipynb#Convert-a-cube-to-PyVista-form-for-plotting)**
 
 ```python
 from pv_conversions import pv_from_lfric_cube
 pv = pv_from_lfric_cube(lfric_rh)
 ```
+
+This produces a PyVista ["PolyData" object](https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.html#pyvista-polydata).  
+
+**Print that to take a look a it.**
+
+```python tags=[]
+pv
+```
+
+( Note: like `Cube`s + `CubeList`s, these `PolyData` objects are provided with a specific visible within the Jupyter notebooks.  This is displayed when you just enter the variable in a cell.  
+You can also use "print(x)" to display the standard string representation of the object, but usually the notebook-style output is a bit more useful. )
 
 <!-- #region -->
 ---
@@ -126,7 +130,7 @@ pv = pv_from_lfric_cube(lfric_rh)
 Now, we need a [PyVista "plotter"](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.Plotter.html#pyvista.Plotter) object to display things in 3D.  
 Since our data is geo-located, we will use the special subtype `GeoPlotter`, from [GeoVista](https://github.com/bjlittle/geovista#philisophy) for this.
 
-**Import the class `GeoPlotter` from the `geovista` package, and create one** (with no arguments)
+**(3) Import the class `GeoPlotter` from the `geovista` package, and create one** (with no arguments)
 <details><summary>Sample code solution : <b>click to reveal</b></summary>
 
 ```python
@@ -147,7 +151,7 @@ But none are required by default.
 
 ---
 
-**Now call the plotter `add_mesh` function, passing in our PolyData object with the Rh cube data in it.**  
+**Call the plotter `add_mesh` function, passing in our PolyData object.**  
 ( **N.B.** don't worry about the object which this passes back -- just discard it, for now ).
 <details><summary>Sample code solution : <b>click to reveal</b></summary>
 

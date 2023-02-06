@@ -20,7 +20,7 @@ def switch_data(use_newer_smaller_c48_data=True):
 
     if use_newer_smaller_c48_data:
         # newer data
-        data_path = Path('/home/h03/bfock/scratch/example_data_u-ct674/')
+        data_path = Path('/home/h03/bfock/scratch/example_data_u-ct674/') # add 20210324T0000Z/
     else:
         # older data
         data_path = Path('/scratch/sworsley/lfric_data')
@@ -30,9 +30,9 @@ def switch_data(use_newer_smaller_c48_data=True):
     lfric_latlon_filepth = data_path / '20210324T0000Z_lf_latlon.nc'
 
 
-# By default (for now) use LARGER data
+# By default (for now) use SMALLER data
 # N.B. works dynamically -- fetched results are all affected
-switch_data(use_newer_smaller_c48_data=False)
+switch_data(use_newer_smaller_c48_data=True)
 
 
 def um_all_datacubes():

@@ -14,6 +14,9 @@ jupyter:
 
 # LFRic + Iris tutorial : Unstructured meshes
 
+The tutorial is provided as a set of Jupyter notebooks, best viewed in Juptyer lab.  
+Please see list below for the individual topics.
+
 
 ## Important Preliminary : use + stability of notebooks
 
@@ -44,7 +47,7 @@ We suggest that you launch the Jupyter server _itself_ in the dedicated (conda) 
 
 
 ---
-## Tutorial sections : --> individual notebooks
+## Tutorial sections : _links_ to individual notebooks
    * [01 - Load and Examine some LFRic data](./Sec_01_Load_and_Examine.ipynb)
    * [02 - Mesh concepts and Meshes in Iris](./Sec_02_Meshes.ipynb)
    * [03 - Plotting and Visualisation](./Sec_03_Plotting.ipynb)
