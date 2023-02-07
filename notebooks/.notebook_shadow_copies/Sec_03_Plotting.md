@@ -12,7 +12,7 @@ jupyter:
     name: python3
 ---
 
-# Section 3 : 3D visualisation and plotting
+# Section 3: 3D visualisation and plotting
 
 Here we explain the use of 3D plotting, and introduce GeoVista and PyVista
 
@@ -126,7 +126,7 @@ pv.plot()
 **NOTES**:
   * this plot is interactive -- try dragging to rotate, and the mouse scroll-wheel to zoom
   * this obviously causes some clutter and uses up some space (e.g. you can't easily scroll past it)  
-    * To ***remove*** a plot output, use "Clear Output" from the "Edit" menu (or from right-click on the cell)
+    * To ***remove*** a plot output, in a notebook, use "Clear Output" from the "Edit" menu (or from right-click on the cell)
   * alternatively, set the keyword `jupyter_backend='static'` in the command, for output as a plain image
 
 
@@ -221,7 +221,7 @@ Unlike 2D plotting, we can't simply set the view to show a given coordinate rang
 However, we can record and control the camera position.
 
 ```python tags=[]
-viewpoint = my_plotter.camera_position
+viewpoint = plotter.camera_position
 viewpoint
 ```
 
@@ -255,7 +255,6 @@ The easiest way to manage this is to manually rotate and zoom, and then capture 
 
 ```python tags=[]
 view = new_plotter.camera_position
-
 print(view)
 ```
 
@@ -335,58 +334,36 @@ plt.show(jupyter_backend='static')
 
 ## Projected 2D plotting using GeoVista
 
-As it provides, Geovista 
-...
-extra notebook.
+As Geovista is concerned with geolocation, it also understands map projections.
+This makes it possible to put data on map, producing the more familiar style of 2D plots.
 
+The simplest solution is to specify a projection with the `crs` keyword in the GeoPlotter constructor call.  
+The argument takes a "proj string" specifier for the projection: 
+[See general details of those here](https://proj.org/usage/quickstart.html), and [here is the list of supported projections](https://proj.org/operations/projections/index.html).
 
-```python
-# GeoVista coastline projection not yet supported. Use a representation of coastlines as Cube data instead.
-
-# import requests
-# r = requests.get("https://github.com/SciTools-incubator/presentations/raw/main/ngms_champions_2022-04-12/coastline_grid.nc")
-# open("coastline_grid.nc", "wb").write(r.content)
-
-# coastline_cube = iris.load_cube("coastline_grid.nc")
-
-# coastline_polydata = pv_from_structcube(coastline_cube)
-# # Remove all NaN's (grid squares that aren't on a coast).
-# coastline_polydata = coastline_polydata.threshold()
-```
+Here's a very simple example, specifying an [Eckart-IV projection](https://proj.org/operations/projections/eck4.html) ...
 
 ```python
-def plot_projected(my_polydata, plotter=None):
-    """Plot polydata on a given plotter"""
-    if plotter is None:
-        plotter = GeoPlotter()
-    # Add the coastline cells 'above' the data itself.
-    plotter.add_mesh(
-        coastline_polydata,
-        color="white",
-        show_edges=True,
-        edge_color="white",
-        radius=1.1,     # For globe plots
-        zlevel=10,       # For planar plots
-    )
-    plot_polydata = my_polydata.copy()
-    plotter.add_mesh(plot_polydata)
-    # if plotter.crs != WGS84:
-    #     # Projected plot.
-    #     plotter.camera_position = "xy"
-    #     backend = "static"
-    # else:
-    #     backend = "pythreejs"
-#         backend = "static"
-    plotter.show()  # jupyter_backend=backend)
+proj_string = '+proj=eck4'
+plotter = GeoPlotter(crs=proj_string)
+plotter.add_mesh(pv)
+# Note: it's important to view down the Z axis
+plotter.view_xy()
+plotter.show(jupyter_backend='static')
 ```
 
-```python
-# Plot these side-by-side ...
+---
 
-```
+**NOTES:**
+  * these "2D plots" are actually flat objects in a 3D space
+    * if you make an interactive plot, you can rotate the panel -- ***try this***
+  * the support is still somewhat experimental -- possibly, not all projections will work correctly
+  * unfortunately, `plotter.add_coastlines()` does ***not*** yet work with projected plots
+
+
 
 ## Next notebook
-See the next section : [04 - Regridding and UM data comparison](./Sec_04_Regridding.ipynb)
+See the next section: [04 - Regridding and UM data comparison](./Sec_04_Regridding.ipynb)
 
 ```python
 

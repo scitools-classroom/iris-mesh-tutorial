@@ -12,7 +12,7 @@ jupyter:
     name: python3
 ---
 
-# Section 2 : Mesh Concepts, and the LFRic mesh
+# Section 2: Mesh Concepts, and the LFRic mesh
 
 A Mesh is a way of describing spatial regions, which may also have data values associated to them.
 
@@ -30,7 +30,7 @@ UGRID can describe spatial **points**, **lines** and (polygonal) **faces**.
 Appropriate data can be associated with any of these -- e.g. sampled values at cell corners (points), 
 or average values over each cell region (faces).
 
-UGRID's permitted element types are :
+UGRID's permitted element types are:
   * **node** - a point in space, defined by some M coordinate values
   * **edge** - a line between 2 end nodes
   * **face** - a polygon with some N nodes as its corners
@@ -65,14 +65,14 @@ For those interested, this is explained in the bonus notebook ["mesh_from_number
 The most common usage (at least in LFRic output), is to have a mesh which defines nodes + faces, 
 plus data variables mapped to the face components.
 
-Here is an example of what that looks like :--
+Here is an example of what that looks like ...
 
 
 ![Picture of nodes and faces](LFRic_mesh.svg)
 
 
 This diagram demonstrates the relationship between face-numbers, node-numbers and node coordinates.
-Note that no _edges_ are shown here :  In UGRID, and Iris, mesh faces do not depend on edges, but are built only from nodes.
+Note that no _edges_ are shown here:  In UGRID, and Iris, mesh faces do not depend on edges, but are built only from nodes.
 
 Technically, the LFRic mesh is a "**cubesphere**".  
   * the surface of the globe is divided into 6 equal 'panels', analagous to the 6 faces of a cube
@@ -104,7 +104,7 @@ lfric_rh
 
 Compare the above to some UM data (e.g. `testdata_fetching.um_temp()`).
 
-You should find that an 'unstructured' cube has some extra properties : `cube.mesh`, `cube.location` and `cube.mesh_dim()`  
+You should find that an 'unstructured' cube has some extra properties: `cube.mesh`, `cube.location` and `cube.mesh_dim()`  
 
 
 ```python
@@ -135,9 +135,9 @@ However, for those interested, there is a bonus notebook showing some of this : 
 <!-- #region tags=[] -->
 ---
 
-## Exercises : mesh data
+## Exercises: mesh data
 
-### Ex.1 : How to check whether a cube has structured or mesh-based data
+### Ex.1: How to check whether a cube has structured or mesh-based data
 <!-- #endregion -->
 
 ```python tags=[]
@@ -177,10 +177,10 @@ print('Cube: ', repr(mesh_cube), '\n  - is_meshcube ?', is_meshcube(mesh_cube))
 
 ```
 
-### Question : what is `cube.mesh_dim` for ?
+### Question: what is `cube.mesh_dim` for ?
 
 
-<details><summary>Sample Answer : <b>click to reveal</b></summary>
+<details><summary>Sample Answer: <b>click to reveal</b></summary>
 It is a function which you call, returning an integer.
 <br/>The result tells you which cube dimension is the mesh dimension  -- that is, the cube dimension which indexes the individual elements of the mesh
 
@@ -189,9 +189,9 @@ See [Iris API docs for `Cube.mesh_dim`](https://scitools-iris.readthedocs.io/en/
 </details>
 
 
-### Question : what does `cube.location` mean ?
+### Question: what does `cube.location` mean ?
 
-<details><summary>Sample answer : <b>click to reveal</b></summary>
+<details><summary>Sample answer: <b>click to reveal</b></summary>
 It returns a string, "node", "edge" or "face", indicating the type of mesh element which the cube data is mapped to.
 
 See in [Iris "Mesh Support" docs](https://scitools-iris.readthedocs.io/en/latest/further_topics/ugrid/data_model.html?highlight=location#the-basics)
@@ -202,18 +202,18 @@ See in [Iris "Mesh Support" docs](https://scitools-iris.readthedocs.io/en/latest
 ### Additional questions to consider ...
 
   * what does `cube.mesh_dim` do when a cube *has* no mesh ?
-        <details><summary>Sample answer : <b>click to reveal</b></summary>
+        <details><summary>Sample answer: <b>click to reveal</b></summary>
     It returns `None`.
     </details>
   * what happens if there is more than one mesh, or mesh dimension ?
-    <details><summary>Sample answer : <b>click to reveal</b></summary>
+    <details><summary>Sample answer: <b>click to reveal</b></summary>
     A bit of a "trick question" !  
     </br>In UGRID, a data-variable can have at most <i>one</i> location and mesh.  Therefore, since each Iris cube represents a CF data-variable, it can only have one mesh, and one mesh dimension -- that of its location in the mesh.
     </details>
 
 
 ## Next notebook
-See the next section : [03 - Plotting and Visualisation](./Sec_03_Plotting.ipynb)
+See the next section: [03 - Plotting and Visualisation](./Sec_03_Plotting.ipynb)
 
 ```python
 
