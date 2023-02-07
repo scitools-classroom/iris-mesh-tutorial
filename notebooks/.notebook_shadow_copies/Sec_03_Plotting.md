@@ -12,39 +12,38 @@ jupyter:
     name: python3
 ---
 
-# Section 3 : 3d visualisation and plotting
+# Section 3: 3D visualisation and plotting
 
-Schema :
-  * Introduce Geovista
-  * Explain context of 3D and "traditional" matplotlib-based plotting
+Here we explain the use of 3D plotting, and introduce GeoVista and PyVista
+
 
 
 ## 3D visualisation
 
-While LFRic data can be presented in 2D plots with a map projection, it is often more profitable way to explore it with a 3D viewer.  
+Unlike UM data, which is mostly plotted on a map projection, the most usual way to plot LFRic data is in a 3D viewer.  
 
-There are a few reasons for this :
-  1. the LFRic model grid does not follow a 2d, lat-lon aligned structure (unlike UM)
-  2. LFRic data is now tending to be too large for matplotlib-style plotting (~6 million cells)
+There are a few key reasons for this :
+  1. LFRic gridcells are not lat-lon aligned like the UM, so 2D plotting is not such a direct operation
+  2. LFRic data often has too many cells for easy plotting with matplotlib
 
 
-```python tags=[]
-# Essential setup
-# %matplotlib inline
-# import pyvista as pv
-# pv.rcParams["use_ipyvtk"] = True
-```
 
-## What Geovista is for
+### What Geovista is for
 
-  * **VTK** : highly mature 3D visualisation library (C++)
-  * **PyVista** : VTK for normal humans (in Python)
-  * **Geovista** : geolocation for PyVista
+GeoVista adds geo-location facilities to PyVista, allowing us to plot geolocated data in a 3D view.
+
+The key supporting softweare components are these (***follow links for more detail***):
+  * [**VTK**](https://vtk.org/) : highly mature 3D visualisation library (C++)
+  * [**PyVista**](https://pyvista.org/) : VTK for Python
+  * [**GeoVista**](https://github.com/bjlittle/geovista#readme) : geolocation for PyVista
      * map projections + transforms
      * geolocated data and regions
      * coastlines
 
 
+### Geovista basic demo : an interactive plot of ocean data
+
+A simple self-contained demonstration
 
 ```python
 # Import things from Geovista
@@ -59,112 +58,117 @@ sample = um_orca2()
 ```
 
 ```python
-sample.lats.shape
-```
-
-```python
-# Handy routine
+# A local utility routine
 import display_demo_routines
-from importlib import reload
-reload(display_demo_routines)
 
 from display_demo_routines import popup_2d_data_xx_yy
-
 ```
-
-## Geovista basic demo : an interactive plot of ocean data
 
 ```python
+# launch
 popup_2d_data_xx_yy(sample, "ORCA test data")
 ```
+
+## Using GeoVista/PyVista with Iris
+
+<!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
+
+There are as yet *no* facilities in Iris for plotting unstructed cubes.  
+We can do that using PyVista, but first, we need to convert the data to a PyVista format.  
 
 **NOTE**
   * Geovista is not Iris-dependent
   * Iris does not (yet) fully integrate Geovista
   * .. therefore user code is currently needed to bridge the two
   * .. **but** the gap is fairly small, and this makes Geovista more generally useful
-
-
-
-
-
-## Create a plotter, and display 3D visualisation
-
-The above example shows some interesting features, but it is only a 'potted' demonstration.  
-Let's grab some actual LFRic data and examine the actual plotting mechanism in a bit more detail.  
-
-The simplest way, as seen in [Sec#02 - Quick 3d plotting](./Sec_02_Meshes.ipynb#Quick-3d-plotting), is just to call `PolyData.plot()`, but that is rather limited in what it can do.
-
-For more control, we need to deal with the GeoVista/PyVista `Plotter` object.  
-The full process for this requires a number of several discrete steps ...
-
-**(1) First load in the same 2D 'relative_humidity' datacube we loaded back in [Section#02 "Fetch some sample data"](./Sec_02_Meshes.ipynb#Fetch-some-sample-unstructured-data,-as-used-in-Section#01)**
+<!-- #endregion -->
 
 ```python
-# TODO: remove when switched to fulltime lower-res test data
-from testdata_fetching import switch_data
-switch_data(use_newer_smaller_c48_data=True)
-```
-
-```python
+# Load a 2D 'relative_humidity' cube data, with tutorial utility function as before
+# This is the same cube we loaded back in [Section#02 "Fetch some sample data"](./Sec_02_Meshes.ipynb#Fetch-some-sample-unstructured-data,-as-used-in-Section#01)**
 from testdata_fetching import lfric_rh_singletime_2d
 lfric_rh = lfric_rh_singletime_2d()
 ```
 
----
+### Convert an Iris cube to a PyVista `PolyData`
 
-**(2) convert the Iris cube to a PyVista `PolyData`, as in [Section#02 "Convert a cube to PyVista form"](./Sec_02_Meshes.ipynb#Convert-a-cube-to-PyVista-form-for-plotting)**
+As the conversion code is non-trivial, we provided a utility function.  
+We import and use `pv_conversions.pv_from_lfric_cube` (provided here in the tutorial).
 
 ```python
 from pv_conversions import pv_from_lfric_cube
+
 pv = pv_from_lfric_cube(lfric_rh)
 ```
 
-<!-- #region -->
----
+This produces a PyVista ["PolyData"](https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.html#pyvista-polydata) object.  
 
-Now, we need a [PyVista "plotter"](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.Plotter.html#pyvista.Plotter) object to display things in 3D.  
-Since our data is geo-located, we will use the special subtype `GeoPlotter`, from [GeoVista](https://github.com/bjlittle/geovista#philisophy) for this.
+**Print that to take a look a it.**
 
-**Import the class `GeoPlotter` from the `geovista` package, and create one** (with no arguments)
-<details><summary>Sample code solution : <b>click to reveal</b></summary>
+```python tags=[]
+pv
+```
+
+Note: like `Cube`s + `CubeList`s, these `PolyData` objects are provided with a specific visible within the Jupyter notebooks.  
+This is displayed when you just enter the variable in a cell.  
+
+You can also use "print(x)" to display the standard string representation of the object, but usually the notebook-style output is a bit more useful.
+
+
+### Instant 3D plot
+
+We can plot a `PolyData` simply by calling its `.plot()` method.
 
 ```python
+pv.plot()
+```
+
+**NOTES**:
+  * this plot is interactive -- try dragging to rotate, and the mouse scroll-wheel to zoom
+  * this obviously causes some clutter and uses up some space (e.g. you can't easily scroll past it)  
+    * To ***remove*** a plot output, in a notebook, use "Clear Output" from the "Edit" menu (or from right-click on the cell)
+  * alternatively, set the keyword `jupyter_backend='static'` in the command, for output as a plain image
+
+
+
+
+### Create a plotter to display 3D visualisation of data from Iris
+
+There are a lot more keywords available to [the `PolyData.plot()` method](https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.plot.html), but it is not ideal to overcomplicate these calls.  
+
+Finer control is better achieved in a different way:  We create a GeoVista/PyVista `Plotter` object, and deal with that directly.
+
+The full process for this involves a few steps ...
+
+
+#### Create a `pyvista.Plotter `
+We will create a [PyVista "plotter"](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.Plotter.html#pyvista.Plotter) object to display things in 3D.  
+
+However, since our data is geo-located, we will use the special subtype `GeoPlotter`, from [GeoVista](https://github.com/bjlittle/geovista#philisophy) for this.
+
+```python tags=[]
 from geovista import GeoPlotter
 plotter = GeoPlotter()
 ```
-</details>
-<!-- #endregion -->
 
-```python
-from geovista import GeoPlotter
-plotter = GeoPlotter()
-```
-
-<!-- #region -->
 Note: various control arguments can be added to `GeoPlotter()`.  
 But none are required by default.
 
 ---
 
-**Now call the plotter `add_mesh` function, passing in our PolyData object with the Rh cube data in it.**  
-( **N.B.** don't worry about the object which this passes back -- just discard it, for now ).
-<details><summary>Sample code solution : <b>click to reveal</b></summary>
 
-```python
-_ = plotter.add_mesh(pv)
-```
-</details>
-<!-- #endregion -->
+#### Call the plotter [`add_mesh`](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html#add-mesh) function
+We pass in the PolyData object.  
+There are lots of possible other keywords, but none are required.
+
+( **N.B.** don't worry about the object which this passes back -- just discard it, for now ).
 
 ```python
 _ = plotter.add_mesh(pv)
 ```
 
 <!-- #region -->
----
-
-**Finally, simply plot this, by calling the plotter function "show" (with no args).**
+#### Call [`Plotter.show()`](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.Plotter.show.html#pyvista.Plotter.show) to display
 <details><summary>Sample code solution : <b>click to reveal</b></summary>
 
 ```python
@@ -188,42 +192,83 @@ plotter.show()
 
 
 
-***TODO:*** can suggest some of these as follow-on exercises
+### Additional features
 
-
-## Additional features
-
-The above hasn't yet added anything to the basic `PolyData.plot()` call.
+The above hasn't yet actually added to what we can do with a simple`PolyData.plot()`.
 
 However, when you create your own GeoPlotter, you can do a lot more to control the view, and add useful aspects.
 
 **What can each of the following GeoPlotter methods do ?...**
-( N.B. there is no rendered GeoVista API yet, but you can see the code docstrings, e.g. [here] )
-  * **`add_coastlines`**
-  * **`add_axes`**
-  * **`add_base_layer`**  (hint: look in the source of the `demo_display_2d_xx_yy_data` routine)
-  * **`add_camera_orientation_widget`**
+( N.B. there is no rendered GeoVista API yet, but you can see the code docstrings, e.g. [here](https://github.com/bjlittle/geovista/blob/v0.1.1/src/geovista/geoplotter.py#L69) )
+  * [add_coastlines](https://github.com/bjlittle/geovista/blob/v0.1.1/src/geovista/geoplotter.py#L193-L215) 
+  * [add_axes](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_axes.html#pyvista.BasePlotter.add_axes)
+  * [add_base_layer](https://github.com/bjlittle/geovista/blob/v0.1.1/src/geovista/geoplotter.py#L122-L159)  (hint: look in the source of the `demo_display_2d_xx_yy_data` routine)
+  * add_camera_orientation_widget
 
-Note : of these, 'coastlines' and 'base_layer' are GeoVista concepts, while 'axes' and 'camera_orientation_widget' are from PyVista.  The `GeoPlotter` is simply a specialised (extended) version of a `PyVista.Plotter`.
+Note : of these, 'coastlines' and 'base_layer' are GeoVista concepts, while 'axes' and 'camera_orientation_widget' are from PyVista.  
+The `GeoPlotter` is simply a specialised (extended) version of a `PyVista.Plotter`.
 
 Another very useful resource is the GeoVista runnable examples.  
 See : https://github.com/bjlittle/geovista/tree/main/src/geovista/examples
 
-```python
+```python tags=[]
 # .. space for user code (E.G. try "add_coastlines") ...
 ```
 
-```python
-# .. space for user code (E.G. try "add_base_layer") ...
+### Controlling the 3D view
+
+Unlike 2D plotting, we can't simply set the view to show a given coordinate range.
+However, we can record and control the camera position.
+
+```python tags=[]
+viewpoint = plotter.camera_position
+viewpoint
 ```
 
-```python
-# .. space for user code (E.G. try "add_axes") ...
+<!-- #region tags=[] -->
+---
+
+**For example**, this pre-loaded position focusses the view on a cubesphere "corner" in the middle East :
+<!-- #endregion -->
+
+```python tags=[]
+viewpoint = [
+    (1.1555926379084704, 1.1347715619001786, 1.1660979285179414),
+    (0.0, 0.0, 0.0),
+    (-0.3202752464164226, -0.5004192729867467, 0.80436578604284)
+]
 ```
 
-# Comparing UM and LFRic fields
+```python tags=[]
+# Plot the LFRIC data with this same view ...
+new_plotter = GeoPlotter()
+new_plotter.add_coastlines()
+new_plotter.add_mesh(pv, show_edges=True)
+new_plotter.camera_position = viewpoint
+new_plotter.show(jupyter_backend='static')
+```
 
-```python
+---
+
+The easiest way to manage this is to manually rotate and zoom, and then capture the result,  
+***like this ...***
+
+```python tags=[]
+view = new_plotter.camera_position
+print(view)
+```
+
+***A Simple Exercise:*** 
+  * zoom + scroll the above window as desired, and then capture the result in a variable, as just shown.  
+  * show that you can reproduce that view with other data.
+
+
+
+## Comparing UM and LFRic fields
+
+### Fetch some equivalent UM data
+
+```python tags=[]
 from testdata_fetching import um_rh_singletime_2d
 #um_rh = iris.load_cube(um_filepth, 'relative_humidity')
 um_rh = um_rh_singletime_2d()
@@ -233,24 +278,24 @@ um_rh
 ```
 
 ---
+#### Plot in matplotlib
+For reference, as this is ordinary "structured" data, let's quickly plot it on an old-style Iris matplotlib plot.
 
-Just as a reference, let's quickly show that on an old-style Iris matplotlib plot.
 
-**Display this cube (ordinary, "structured" data) by passing it into the routine `iris.quickplot.pcolormesh`.**
-
-```python
+```python tags=[]
 import iris.quickplot  as qplt
 qplt.pcolormesh(um_rh)
 ```
 
 ---
-Now to plot this in 3d.  
+### Convert the UM cube to a PolyData
 
-For this, we have another utility routine which allows us to convert "ordinary" structured cubes into PyVista `PolyData`.
+To plot this in 3d, we must convert it to PolyData.  
 
-**Convert this UM cube to a PolyData, with the routine `pv_conversions.pv_from_um_cube`, and display it in 3D.** 
+For this, we have another utility routine which allows us to convert "ordinary" structured cubes.  
+See : `pv_conversions.pv_from_um_cube`
 
-```python
+```python tags=[]
 from pv_conversions import pv_from_um_cube
 um_pv = pv_from_um_cube(um_rh)
 um_pv.plot()
@@ -259,108 +304,67 @@ um_pv.plot()
 **Note :** 
 This is still traditional "structured" data on its original UM lat-lon grid.
 
-You can see this clearly by zooming in on a pole, where the cells get very narrow.
+***Simple Exercise:***
+You can see this clearly by zooming in on one pole -- where the cells get very narrow.
 
 
 ## Simple side-by-side plotting : UM vs LFRic data
 
 Let's compare the matched UM and LFRic data fields by eye, in side-by-side 3D view.
 
-This is mostly a demonstration of what can be achived, somewhat complicated,  
+This is mostly a demonstration of what can be achieved, which is fairly complicated,  
 so we have provided another utility routine ...
 
-**import the function `side_by_side_plotter` from `display_demo_routines`, and apply it to the UM and LFRic data cubes as arguments.  
-Then display the `Plotter` which this returns.**
+**Using the function `display_demo_routines.side_by_side_plotter` ...**
 
-```python
+```python tags=[]
 from display_demo_routines import side_by_side_plotter
 plt = side_by_side_plotter(pv, um_pv)
 plt.show()
 ```
 
-```python
+---
 
+**For reference : a focussed, static plot of the same**
+
+```python tags=[]
+plt.camera_position = viewpoint
+plt.show(jupyter_backend='static')
 ```
 
-## A handy hint : how to record + re-use a camera view
+## Projected 2D plotting using GeoVista
+
+As Geovista is concerned with geolocation, it also understands map projections.
+This makes it possible to put data on map, producing the more familiar style of 2D plots.
+
+The simplest solution is to specify a projection with the `crs` keyword in the GeoPlotter constructor call.  
+The argument takes a "proj string" specifier for the projection: 
+[See general details of those here](https://proj.org/usage/quickstart.html), and [here is the list of supported projections](https://proj.org/operations/projections/index.html).
+
+Here's a very simple example, specifying an [Eckart-IV projection](https://proj.org/operations/projections/eck4.html) ...
 
 ```python
-viewpoint = my_plotter.camera_position
-viewpoint
+proj_string = '+proj=eck4'
+plotter = GeoPlotter(crs=proj_string)
+plotter.add_mesh(pv)
+# Note: it's important to view down the Z axis
+plotter.view_xy()
+plotter.show(jupyter_backend='static')
 ```
 
-```python
-# This pre-loaded position focusses on a cubesphere "corner" in the middle East
-viewpoint = [
-    (0.9550352379408845, 0.9378277371075855, 0.9637172962958191),
-    (0.0, 0.0, 0.0),
-    (-0.3202752464164225, -0.5004192729867466, 0.8043657860428399)
-]
-viewpoint = [
-    (1.1555926379084704, 1.1347715619001786, 1.1660979285179414),
-    (0.0, 0.0, 0.0),
-    (-0.3202752464164226, -0.5004192729867467, 0.80436578604284)
-]
-```
+---
+
+**NOTES:**
+  * these "2D plots" are actually flat objects in a 3D space
+    * if you make an interactive plot, you can rotate the panel -- ***try this***
+  * the support is still somewhat experimental -- possibly, not all projections will work correctly
+  * unfortunately, `plotter.add_coastlines()` does ***not*** yet work with projected plots
+
+
+
+## Next notebook
+See the next section: [04 - Regridding and UM data comparison](./Sec_04_Regridding.ipynb)
 
 ```python
-# Plot just the LFRIC data with the same view ...
-new_plotter = GeoPlotter()
-new_plotter.add_coastlines()
-new_plotter.add_mesh(pv, show_edges=True)
-new_plotter.camera_position = viewpoint
-new_plotter.show(jupyter_backend='static')
-```
-
-```python
-new_plotter.camera_position
-```
-
-```python
-# WIP : projected 2D plotting
-```
-
-```python
-# GeoVista coastline projection not yet supported. Use a representation of coastlines as Cube data instead.
-
-# import requests
-# r = requests.get("https://github.com/SciTools-incubator/presentations/raw/main/ngms_champions_2022-04-12/coastline_grid.nc")
-# open("coastline_grid.nc", "wb").write(r.content)
-
-# coastline_cube = iris.load_cube("coastline_grid.nc")
-
-# coastline_polydata = pv_from_structcube(coastline_cube)
-# # Remove all NaN's (grid squares that aren't on a coast).
-# coastline_polydata = coastline_polydata.threshold()
-```
-
-```python
-def plot_projected(my_polydata, plotter=None):
-    """Plot polydata on a given plotter"""
-    if plotter is None:
-        plotter = GeoPlotter()
-    # Add the coastline cells 'above' the data itself.
-    plotter.add_mesh(
-        coastline_polydata,
-        color="white",
-        show_edges=True,
-        edge_color="white",
-        radius=1.1,     # For globe plots
-        zlevel=10,       # For planar plots
-    )
-    plot_polydata = my_polydata.copy()
-    plotter.add_mesh(plot_polydata)
-    # if plotter.crs != WGS84:
-    #     # Projected plot.
-    #     plotter.camera_position = "xy"
-    #     backend = "static"
-    # else:
-    #     backend = "pythreejs"
-#         backend = "static"
-    plotter.show()  # jupyter_backend=backend)
-```
-
-```python
-# Plot these side-by-side ...
 
 ```

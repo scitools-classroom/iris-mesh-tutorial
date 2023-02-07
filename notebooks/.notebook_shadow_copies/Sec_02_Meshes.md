@@ -12,7 +12,7 @@ jupyter:
     name: python3
 ---
 
-# Section 2 : Mesh Concepts, and the LFRic mesh
+# Section 2: Mesh Concepts, and the LFRic mesh
 
 A Mesh is a way of describing spatial regions, which may also have data values associated to them.
 
@@ -30,7 +30,7 @@ UGRID can describe spatial **points**, **lines** and (polygonal) **faces**.
 Appropriate data can be associated with any of these -- e.g. sampled values at cell corners (points), 
 or average values over each cell region (faces).
 
-UGRID's permitted element types are :
+UGRID's permitted element types are:
   * **node** - a point in space, defined by some M coordinate values
   * **edge** - a line between 2 end nodes
   * **face** - a polygon with some N nodes as its corners
@@ -55,230 +55,166 @@ Extra Notes:
 
 <!-- #endregion -->
 
+### Construction of an abstract Mesh in Iris
+This is too complex to cover in detail here.  
+For those interested, this is explained in the bonus notebook ["mesh_from_numbers.ipynb"](./mesh_from_numbers.ipynb).
+
+
 ## Actual LFRic meshes
 
 The most common usage (at least in LFRic output), is to have a mesh which defines nodes + faces, 
 plus data variables mapped to the face components.
 
-Here is an example of what that looks like :--
+Here is an example of what that looks like ...
 
 
 ![Picture of nodes and faces](LFRic_mesh.svg)
 
 
-This demonstrates the relationship between face-numbers, node-numbers and node coordinates.
-Note that no _edges_ are shown here :  In UGRID, and Iris, mesh faces do not depend on edges, but are built only from nodes.
+This diagram demonstrates the relationship between face-numbers, node-numbers and node coordinates.
+Note that no _edges_ are shown here:  In UGRID, and Iris, mesh faces do not depend on edges, but are built only from nodes.
+
+Technically, the LFRic mesh is a "**cubesphere**".  
+  * the surface of the globe is divided into 6 equal 'panels', analagous to the 6 faces of a cube
+  * each panel is subdivided into N * N cells, giving 6.N^2 total cells
+  * the above view shows the neighbourhood of one cubesphere 'corner'
+
+**We will next load some actual LFRic data and look at how the mesh appears in Iris.**
 
 
 ---
 
-## Fetch some sample unstructured data, as used in Section#01
+### Fetch some sample unstructured data
+As used in Section#01
 
 **Import the data-access routine `lfric_rh_singletime_2d` from `testdata_fetching`, and call it to get a single two-dimensional test cube.**
-
-```python
-## TODO : remove later -- this bit is temporary, for initial testing with C48 data
-from testdata_fetching import switch_data
-switch_data(use_newer_smaller_c48_data=True)
-```
 
 ```python
 from testdata_fetching import lfric_rh_singletime_2d
 lfric_rh = lfric_rh_singletime_2d()
 ```
 
-**Print the cube, and its `cube.mesh`**
+**Print the cube**
+
+```python tags=[]
+lfric_rh
+```
+
+### What is special about "mesh cubes" ?
+
+Compare the above to some UM data (e.g. `testdata_fetching.um_temp()`).
+
+You should find that an 'unstructured' cube has some extra properties: `cube.mesh`, `cube.location` and `cube.mesh_dim()`  
+
 
 ```python
-print(lfric_rh)
-print('\n----\n')
+print("cube.mesh :")
 print(lfric_rh.mesh)
+print("\n-------")
+print("cube.location = ", lfric_rh.location)
+print(lfric_rh.mesh_dim())
+print("\n-------")
+help(lfric_rh.mesh_dim)
+print("cube.mesh_dim() = ", lfric_rh.mesh_dim())
 ```
-
-```python
-# TODO: work this up for user input
-
-# Simply plot that ..
-from pv_conversions import pv_from_lfric_cube
-pv = pv_from_lfric_cube(lfric_rh)
-pv.plot() #jupyter_backend='static')
-```
-
-```python
-
-```
-
-### Investigate the Iris mesh content
-
-Details of how the Iris mesh is constructed are not usually relevant to working with the cube data in Iris, nor to plotting it with PyVista.  
-So that is beyond the scope of an introductory tutorial.  
-
-However, for those interested, bonus material is provided showing some of this [in this additional notebook](./Mesh_Connectivities_demo.ipynb)
-
-
-
-## Plotting mesh data : minimal 3D visualisation of a 2D cube
-
-<!-- #region -->
-First, slice the cube to get the first timestep only  
-  -- as we can only (easily) plot a 2d cube.
-
-**Ex: Put this in a new cube variable, which is our 2D cube.**
-<details><summary>Sample code solution : <b>click to reveal</b></summary>
-
-```python
-rh_t0 = lfric_rh[0]
-```
-</details>
-<!-- #endregion -->
-
-```python
-from testdata_fetching import lfric_rh_singletime_2d
-
-rh_t0 = lfric_rh_singletime_2d()
-```
-
-<!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
-### Convert a cube to PyVista form for plotting
-
-There are as yet *no* facilities in Iris for plotting unstructed cubes.  
-We can do that using PyVista, but we need first to convert the data to a PyVista format.  
-
-So first,  
-**Ex: import the routine `pv_from_lfric_cube` from the package `pv_conversions` (provided here in the tutorial).**
-<details><summary>Sample code solution : <b>click to reveal</b></summary>
-
-```python
-from pv_conversions import pv_from_lfric_cube
-```
-</details>
-<!-- #endregion -->
-
-```python
-from pv_conversions import pv_from_lfric_cube
-```
-
-<!-- #region -->
-**Ex: now call that function, passing it our 2D RH cube, to get a PyVista object.**
-<details><summary>Sample code solution : <b>click to reveal</b></summary>
-
-```python
-pv = pv_from_lfric_cube(rh_t0)
-```
-</details>
-<!-- #endregion -->
-
-```python
-pv = pv_from_lfric_cube(rh_t0)
-```
-
-<!-- #region -->
-This produces a PyVista ["PolyData" object](https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.html#pyvista-polydata).  
-Which is a thing we can plot.  
-
-**Now just print that + see what it looks like ...**
-<details><summary>Sample code solution : <b>click to reveal</b></summary>
-
-```python
-pv
-```
-</details>
-<!-- #endregion -->
-
-```python
-pv
-```
-
-***TODO:*** some notes here on what the detail means ?
-
-
-( Note: like `Cube`s + `CubeList`s, these `PolyData` objects are provided with a specific visible within the Jupyter notebooks.  This is displayed when you just enter the variable in a cell.  
-You can also use "print(x)" to display the standard string representation of the object, but usually the notebook-style output is a bit more useful. )
-
 
 ---
-### Quick 3d plotting
+**Additional Note:**  
+As previously mentioned, every Iris mesh cube has a "mesh dimension".
+This is often the last cube dimension, and is typically "anonymous" -- i.e. it has no dimension coordinate.
 
-For a really quick, basic plot, you can display a PolyData as a VTK view with PyVista, by simply calling its `.plot` method.
 
-**Call the `plot` routine of the PolyData object.  An output should appear.**
+## Details of the Iris mesh content
 
-```python
-pv.plot()
-```
+Exactly ***how*** Iris represents a mesh is not usually very relevant to working with cube data in Iris, nor to plotting it with PyVista.  
+So that is beyond the scope of an introductory tutorial.  
 
-**NOTES**:
-  * this plot is interactive -- try dragging to rotate, and the mouse scroll-wheel to zoom
-  * this obviously causes some clutter and uses up some space (e.g. you can't easily scroll past it)  
-    * To ***remove*** a plot output, use "Clear Output" from the "Edit" menu (or from right-click on the cell)
-  * alternatively, set the keyword `jupyter_backend='static'` in the command, for output as a plain image
-
-There are a lot more keywords available to [the `PolyData.plot()` method](https://docs.pyvista.org/api/core/_autosummary/pyvista.PolyData.plot.html), but it is not ideal to overcomplicate these calls.  :  
-Finer control is better achieved in a different ways :  See more detail on plotting in [the Plotting section](./Sec_03_Plotting.ipynb).
+However, for those interested, there is a bonus notebook showing some of this : ["Mesh_Connectivities_demo.ipynb"](./Mesh_Connectivities_demo.ipynb)
 
 
 <!-- #region tags=[] -->
-### Create a plotter, and display 3D visualisation
+---
 
-Finally, we will plot the 'PolyData' object via PyVista.  
-This requires a few additional steps ...
+## Exercises: mesh data
 
-First, we need a [PyVista "plotter"](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.Plotter.html#pyvista.Plotter) object to display things in 3D.  
-Since our data is geo-located, we will use a special type of plotter from [GeoVista](https://github.com/bjlittle/geovista#philisophy) for this.
+### Ex.1: How to check whether a cube has structured or mesh-based data
+<!-- #endregion -->
 
-**Import the class `GeoPlotter` from the `geovista` package, and create one** (with no arguments)
-<details><summary>Sample code solution : <b>click to reveal</b></summary>
-
-```python
-from geovista import GeoPlotter
-plotter = GeoPlotter()
+```python tags=[]
+# ... space for user solution ...
 ```
-</details>
+
+```python tags=[]
+#
+# SAMPLE CODE SOLUTION
+#
+
+
+# Utility Function
+#
+def is_meshcube(cube):
+    return cube.mesh is not None
+
+#-------------------------------
+### Testing ...
+#
+from iris.tests.stock import realistic_3d
+nonmesh_cube = realistic_3d()
+print('Cube: ', repr(nonmesh_cube), '\n  - is_meshcube ?', is_meshcube(nonmesh_cube))
+
+print()
+from iris.tests.stock.mesh import sample_mesh_cube
+mesh_cube = sample_mesh_cube()
+print('Cube: ', repr(mesh_cube), '\n  - is_meshcube ?', is_meshcube(mesh_cube))
+```
+
+<!-- #region tags=[] -->
+---
+***try this also*** with the 'lfric_rh' cube
 <!-- #endregion -->
 
 ```python
-from geovista import GeoPlotter
-plotter = GeoPlotter()
+
 ```
 
-<!-- #region -->
-Call the plotter `add_mesh` function, passing in our PolyData object with the Rh cube data in it.  
-( **N.B.** don't worry about the object which this passes back -- just discard it ).
-<details><summary>Sample code solution : <b>click to reveal</b></summary>
+### Question: what is `cube.mesh_dim` for ?
 
-```python
-_ = plotter.add_mesh(pv)
-```
+
+<details><summary>Sample Answer: <b>click to reveal</b></summary>
+It is a function which you call, returning an integer.
+<br/>The result tells you which cube dimension is the mesh dimension  -- that is, the cube dimension which indexes the individual elements of the mesh
+
+See [Iris API docs for `Cube.mesh_dim`](https://scitools-iris.readthedocs.io/en/latest/generated/api/iris/cube.html#iris.cube.Cube.mesh_dim)
+
 </details>
-<!-- #endregion -->
 
-```python
-_ = plotter.add_mesh(pv)
-```
 
-<!-- #region -->
-Now simply plot this, by calling the plotter function "show" (with no args).
-<details><summary>Sample code solution : <b>click to reveal</b></summary>
+### Question: what does `cube.location` mean ?
 
-```python
-plotter.show()
-```
+<details><summary>Sample answer: <b>click to reveal</b></summary>
+It returns a string, "node", "edge" or "face", indicating the type of mesh element which the cube data is mapped to.
+
+See in [Iris "Mesh Support" docs](https://scitools-iris.readthedocs.io/en/latest/further_topics/ugrid/data_model.html?highlight=location#the-basics)
+
 </details>
-<!-- #endregion -->
+
+
+### Additional questions to consider ...
+
+  * what does `cube.mesh_dim` do when a cube *has* no mesh ?
+        <details><summary>Sample answer: <b>click to reveal</b></summary>
+    It returns `None`.
+    </details>
+  * what happens if there is more than one mesh, or mesh dimension ?
+    <details><summary>Sample answer: <b>click to reveal</b></summary>
+    A bit of a "trick question" !  
+    </br>In UGRID, a data-variable can have at most <i>one</i> location and mesh.  Therefore, since each Iris cube represents a CF data-variable, it can only have one mesh, and one mesh dimension -- that of its location in the mesh.
+    </details>
+
+
+## Next notebook
+See the next section: [03 - Plotting and Visualisation](./Sec_03_Plotting.ipynb)
 
 ```python
-plotter.show()
+
 ```
-
-**Some odd notes:**
-  * By default, `plotter.show()` opens an interactive window : **you can rotate and zoom it with the mouse**.
-    * you can instead generate static output 
-        * in a notebook, you do this with `jupyter_backend='static'`
-        * or in a Python session, try `interactive=False`
-  * VTK/PyVista doesn't use plot "types".  
-    Instead, you add meshes to a plotter + can subsequently control the presentation.
-  * GeoVista can also produce more familiar 2D plots (see on ...)
-
-
-
-***TODO:*** can suggest some of these as follow-on exercises

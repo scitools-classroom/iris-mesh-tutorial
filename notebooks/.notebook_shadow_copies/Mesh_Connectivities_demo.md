@@ -28,12 +28,6 @@ from pv_conversions import pv_from_lfric_cube
 ```
 
 ```python
-## TODO : remove later -- this bit is temporary, for initial testing with C48 data
-from testdata_fetching import switch_data
-switch_data(use_newer_smaller_c48_data=True)
-```
-
-```python
 from testdata_fetching import lfric_rh_singletime_2d
 cube = lfric_rh_singletime_2d()
 print(cube)
@@ -61,7 +55,7 @@ x_nodes_coord
 ```
 
 ---
-## Find the number of the node nearest one corner of the cubesphere
+## Find the number of the node nearest to one corner of the cubesphere
 
 ```python
 xx = x_nodes_coord.points
@@ -84,7 +78,7 @@ print('   ', xy_dists[i_node_nearest_corner - 2:i_node_nearest_corner + 3]
 ## Find the faces which touch that (corner) node
 
 ```python
-# (spoiler alert : if we specced the corner right, there are probably 3 of them)
+# (spoiler alert : if we specified the corner correctly, there should be 3 of these)
 face_nodes = cube.mesh.face_node_connectivity.indices
 assert face_nodes.ndim == 2 and face_nodes.shape[1] == 4
 ```
@@ -104,7 +98,11 @@ cube.data[corner_faces] = marks
 
 # Plot the cube
 pv = pv_from_lfric_cube(cube)
-pv.plot(show_edges=True, jupyter_backend='static')
+plt = pv.plot(show_edges=True, jupyter_backend='static')
+```
+
+```python
+
 ```
 
 ---
