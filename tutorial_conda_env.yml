@@ -5,7 +5,7 @@ dependencies:
   - python=3.9
   - iris
   - geovista
-  - vtk=9.2.2  # experiencing segfaults with latest version
+  - vtk
   - jupyterlab
   - ipyvtklink
   - jupytext=1.14.4  # changing version can cause notebook merge conflicts
