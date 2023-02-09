@@ -20,11 +20,10 @@ def switch_data(use_newer_smaller_c48_data=True):
 
     if use_newer_smaller_c48_data:
         # newer data
-        data_path = Path('/home/h03/bfock/scratch/example_data_u-ct674/')
-        # data_path = Path('/home/h03/bfock/scratch/example_data_u-ct674/20210324T0000Z/')
+        data_path = Path('/g/data/access/ngm/data/umtutorial2023/lfric/data/sample/')
     else:
         # older data
-        data_path = Path('/scratch/sworsley/lfric_data')
+        data_path = Path('/g/data/access/ngm/data/umtutorial2023/lfric/data/sample/')
 
     um_filepth = data_path / '20210324T0000Z_um_latlon.nc'
     lfric_filepth = data_path / '20210324T0000Z_lf_ugrid.nc'
