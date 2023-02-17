@@ -7,7 +7,7 @@ which combine presenter information and student exercises.
 
 ## Get a suitable Python environment to run the notebooks
 
-For guaranteed operation with tested package versions, create a environment from the provided "lockfile", as follows :  
+For guaranteed operation with tested package versions, create a environment from the provided "lockfile", as follows:  
 `$ conda create --name meshtut_safelocked_env --file tutorial_conda_env_resolved.lock` 
 
 
@@ -46,7 +46,7 @@ Open the notebook `Mesh_Tutorial_Intro.ipynb`.
 ## Developer notes: to build the lockfile
 The lockfile `tutorial_conda_env_resolved.lock` is produced from an actual resolved environment.
 
-To build a working env with all-latest packages, do the following : 
+To build a working env with all-latest packages, do the following:
 
 **Step 1:** build a fresh env from the spec
 
