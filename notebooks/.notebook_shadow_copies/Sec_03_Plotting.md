@@ -22,7 +22,7 @@ Here we explain the use of 3D plotting, and introduce GeoVista and PyVista
 
 Unlike UM data, which is mostly plotted on a map projection, the most usual way to plot LFRic data is in a 3D viewer.  
 
-There are a few key reasons for this :
+There are a few key reasons for this:
   1. LFRic gridcells are not lat-lon aligned like the UM, so 2D plotting is not such a direct operation
   2. LFRic data often has too many cells for easy plotting with matplotlib
 
@@ -41,7 +41,7 @@ The key supporting softweare components are these (***follow links for more deta
      * coastlines
 
 
-### Geovista basic demo : an interactive plot of ocean data
+### Geovista basic demo: an interactive plot of ocean data
 
 A simple self-contained demonstration
 
