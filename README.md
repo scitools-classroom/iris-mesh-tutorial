@@ -18,7 +18,7 @@ Run Jupyter lab, in the chosen Python environment.
 E.G.  
 ```
 $ conda activate meshtut_safelocked_env
-$ cd iris-mesh-tutorial/notebooks
+$ cd notebooks
 $ jupyter lab
     [I 2023-01-12 15:39:10.730 ServerApp] jupyter_server_terminals | extension was successfully linked.
     [I 2023-01-12 15:39:10.737 ServerApp] jupyterlab | extension was successfully linked.
