@@ -28,7 +28,7 @@ def switch_data(use_newer_smaller_c48_data=True):
 
     data_path = Path('../example_data/')
 
-    um_filepth = data_path / '20210324T0000Z_um_latlon.nc'
+    um_filepth = data_path    / 'u-ct674_20210324T0000Z_um_latlon.nc'
     lfric_filepth = data_path / 'u-ct674_20210324T0000Z_lf_ugrid.nc'
 
     lfric_latlon_filepth = data_path / '20210324T0000Z_lf_latlon.nc'
