@@ -43,7 +43,7 @@ def um_all_datacubes():
 
 def um_orography():
     cube = iris.load_cube(lfric_latlon_filepth, 'surface_altitude')
-    return cube[0]
+    return cube
 
 def um_temp():
     cube = iris.load_cube(um_filepth, 'air_temperature_0')
