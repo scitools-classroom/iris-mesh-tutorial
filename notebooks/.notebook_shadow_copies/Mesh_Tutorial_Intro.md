@@ -47,7 +47,7 @@ We suggest that you launch the Jupyter server _itself_ in the dedicated (conda) 
 
 
 ---
-## Tutorial sections : _links_ to individual notebooks
+## Tutorial sections (links to individual notebooks):
    * [01 - Load and Examine some LFRic data](./Sec_01_Load_and_Examine.ipynb)
    * [02 - Mesh concepts and Meshes in Iris](./Sec_02_Meshes.ipynb)
    * [03 - Plotting and Visualisation](./Sec_03_Plotting.ipynb)
@@ -55,11 +55,11 @@ We suggest that you launch the Jupyter server _itself_ in the dedicated (conda) 
    * [05 - Regional Extraction](./Sec_05_RegionExtraction.ipynb)
 
 ### Bonus and additional material
-  * ["mesh_from_numbers"](./mesh_from_numbers.ipynb) : manually construct an Iris mesh
-  * ["Mesh_Connectivities_demo"](./Mesh_Connectivities_demo.ipynb) : investigate some details of the LFRic mesh, as it appears in Iris
-  * ["MeshCube_Extraction" : ](./MeshCube_Extraction.ipynb) : use Geovista to extract a mesh-cube subregion ***as*** a new Iris cube
+  * [Bonus 01 - Mesh from Numbers](./Bonus_01_Mesh_from_Numbers.ipynb): Manually construct an Iris mesh
+  * [Bonus 02 - Mesh Connectivities Demo](./Bonus_02_Mesh_Connectivities_Demo.ipynb): Investigate some details of the LFRic mesh, as it appears in Iris
+  * [Bonus 03 - MeshCube Extraction](./Bonus_03_MeshCube_Extraction.ipynb): Use Geovista to extract a mesh-cube subregion as a new Iris cube
 
-
+<!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
 ## Jargon : a really brief glossary of terms
   * **UM** : The Unified Model
   * [**LFRic**](https://www.metoffice.gov.uk/research/approach/modelling-systems/lfric) : The UM successor model, modelling cells on an unstructured (cube-sphere) mesh
@@ -75,6 +75,7 @@ We suggest that you launch the Jupyter server _itself_ in the dedicated (conda) 
   * [**ESMF**](https://earthsystemmodeling.org/) Earth System Modelling Framework : modelling support code for regridding, coupling etc, based in FORTRAN
   * [**iris-esmf-regrid**](https://github.com/SciTools-incubator/iris-esmf-regrid#readme) : Python package providing ESMF-based mesh regridders for Iris
 
+<!-- #endregion -->
 
 ```python
 
