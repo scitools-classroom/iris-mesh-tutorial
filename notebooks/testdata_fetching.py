@@ -14,28 +14,11 @@ um_filepth = None
 lfric_filepth = None
 lfric_latlon_filepth = None
 
-# For now : select C192 (?) or C48 source data
-def switch_data(use_newer_smaller_c48_data=True):
-    global data_path, um_filepth, lfric_filepth, lfric_latlon_filepth
+data_path = Path('../example_data/')
 
-    #if use_newer_smaller_c48_data:
-        # newer data
-        #data_path = Path('/home/h03/bfock/scratch/example_data_u-ct674/')
-        # data_path = Path('/home/h03/bfock/scratch/example_data_u-ct674/20210324T0000Z/')
-    #else:
-        # older data
-        #data_path = Path('/scratch/sworsley/lfric_data')
-
-    data_path = Path('../example_data/')
-
-    um_filepth = data_path           / 'u-ct674_20210324T0000Z_um_latlon.nc'
-    lfric_filepth = data_path        / 'u-ct674_20210324T0000Z_lf_ugrid.nc'
-    lfric_latlon_filepth = data_path / 'u-ct674_20210324T0000Z_lf_latlon.nc'
-
-
-# By default (for now) use SMALLER data
-# N.B. works dynamically -- fetched results are all affected
-switch_data(use_newer_smaller_c48_data=True)
+um_filepth = data_path           / 'u-ct674_20210324T0000Z_um_latlon.nc'
+lfric_filepth = data_path        / 'u-ct674_20210324T0000Z_lf_ugrid.nc'
+lfric_latlon_filepth = data_path / 'u-ct674_20210324T0000Z_lf_latlon.nc'
 
 
 def um_all_datacubes():
