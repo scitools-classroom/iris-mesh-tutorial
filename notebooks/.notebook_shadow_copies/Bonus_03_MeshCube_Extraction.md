@@ -36,7 +36,6 @@ To get a global mesh-cube and a PolyData derived from it.
 ```python
 # Fetch a single cube of test data
 from testdata_fetching import lfric_rh_singletime_2d, switch_data
-switch_data(use_newer_smaller_c48_data=True)
 lfric_rh = lfric_rh_singletime_2d()
 lfric_rh
 ```
