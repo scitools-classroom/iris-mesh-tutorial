@@ -58,9 +58,9 @@ from pv_conversions import pv_from_um_cube
 **Step 2** Lets chose a different diagnostic, 'surface_temperature' and load both the UM data, as well LFRic data to use as reference grid.
 
 ```python
-data_path = 
-lfric_path = data_path + '20210324T0000Z_lf_ugrid.nc'
-um_path = data_path + '20210324T0000Z_um_latlon.nc'
+data_path = '../example_data/'
+lfric_path = data_path + 'u-ct674_20210324T0000Z_lf_ugrid.nc'
+um_path = data_path + 'u-ct674_20210324T0000Z_um_latlon.nc'
 
 with PARSE_UGRID_ON_LOAD.context():
     lfric_rho = iris.load_cube(lfric_path, 'surface_air_pressure')
