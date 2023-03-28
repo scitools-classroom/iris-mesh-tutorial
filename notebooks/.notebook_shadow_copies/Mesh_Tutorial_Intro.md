@@ -32,19 +32,19 @@ Please see list below for the individual topics.
 
 <!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
 ## Jargon: a really brief glossary of terms
-  * [**UM**](https://code.metoffice.gov.uk/trac/um) : The Unified Model
-  * [**LFRic**](https://www.metoffice.gov.uk/research/approach/modelling-systems/lfric) : The UM successor model, modelling cells on an unstructured (cube-sphere) mesh
+  * [**UM**](https://code.metoffice.gov.uk/trac/um): The Unified Model
+  * [**LFRic**](https://www.metoffice.gov.uk/research/approach/modelling-systems/lfric): The UM successor model, modelling cells on an unstructured (cube-sphere) mesh
   * **mesh**: Description of arbitrary locations and regions in space
   * **unstructured**: An _irregular_ arrangement of spatial locations (constrast with 'regular grids')
   * **cubesphere**: Mesh of cells on the globe, arranged like a cube with square cells on each face
   * [**CF**](https://cfconventions.org/cf-conventions/cf-conventions.html): Conventions for encoding climate and forecast data in netCDF files
   * [**UGRID**](https://ugrid-conventions.github.io/ugrid-conventions/): Conventions which extend CF to data on unstructured meshes
   * [**XIOS**](https://forge.ipsl.jussieu.fr/ioserver): Software used by LFRic to save model output as UGRID formatted netCDF files
-  * [**VTK**](https://vtk.org/) : 3D modelling and visualisation package, based in c++
-  * [**PyVista**](https://pyvista.org/) : Python package providing control of VTK from Python code
-  * [**GeoVista**](https://github.com/bjlittle/geovista#readme) : Python package adding geo-location support and utilites to PyVista
-  * [**ESMF**](https://earthsystemmodeling.org/) Earth System Modelling Framework : modelling support code for regridding, coupling etc, based in FORTRAN
-  * [**iris-esmf-regrid**](https://github.com/SciTools-incubator/iris-esmf-regrid#readme) : Python package providing ESMF-based mesh regridders for Iris
+  * [**VTK**](https://vtk.org/): 3D modelling and visualisation package, based in c++
+  * [**PyVista**](https://pyvista.org/): Python package providing control of VTK from Python code
+  * [**GeoVista**](https://github.com/bjlittle/geovista#readme): Python package adding geo-location support and utilites to PyVista
+  * [**ESMF**](https://earthsystemmodeling.org/) Earth System Modelling Framework: modelling support code for regridding, coupling etc, based in FORTRAN
+  * [**iris-esmf-regrid**](https://github.com/SciTools-incubator/iris-esmf-regrid#readme): Python package providing ESMF-based mesh regridders for Iris
 
 <!-- #endregion -->
 
