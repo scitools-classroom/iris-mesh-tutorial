@@ -67,7 +67,7 @@ with PARSE_UGRID_ON_LOAD.context():
     cubes = iris.load(lfric_filepth)
 
 print(f'\n... Loaded {len(cubes)} cubes.')
-print('Showing first 5:')
+print('Showing first 6:')
 cubes[:6]
 ```
 
