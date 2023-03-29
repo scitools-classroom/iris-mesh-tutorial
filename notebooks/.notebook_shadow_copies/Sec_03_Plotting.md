@@ -24,7 +24,7 @@ LFRic data can be plotted in a 3D viewer without the need of regridding. Regridd
 
 
 ### Geovista basic demo
-The following example is meant as a simple self-contained demonstration of interactive ocean data plotting with geovista. It uses the function `popup_2d_data_xx_yy` provided in the [display_demo_routines.py](./display_demo_routines.py) code. 
+The following example is meant as a simple self-contained demonstration of interactive ocean data plotting with geovista. It uses the function `popup_2d_data_xx_yy` provided in [display_demo_routines.py](./display_demo_routines.py). 
 
 
 ```python tags=[]
@@ -39,7 +39,7 @@ popup_2d_data_xx_yy(example_data, "ORCA test data")
 ## Using GeoVista/PyVista with Iris
 
 <!-- #region jp-MarkdownHeadingCollapsed=true tags=[] -->
-There are currently no facilities in Iris for plotting unstructed cubes. To use PyVista for plotting we need to convert our unstructured LFRic data to a PyVista format. Some user code is needed to bridge between Iris and Geovista. Let's use the [testdata_fetching.py](./testdata_fetching.py) code to load some LFRic test data with Iris:
+There are currently no facilities in Iris for plotting unstructed cubes. To use PyVista for plotting we need to convert our unstructured LFRic data to a PyVista format. Some user code is needed to bridge between Iris and Geovista. Let's use the code in [testdata_fetching.py](./testdata_fetching.py) to load some LFRic test data with Iris first:
 
 <!-- #endregion -->
 
@@ -77,7 +77,7 @@ pv.plot()
 
 ### Create a plotter to display 3D visualisation of data from Iris
 
-There are many keywords available to the [`PolyData.plot()` method](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.plot.html). But to achieve finer control we chose different way: Creating a GeoVista/PyVista `Plotter` object, and deal with that directly. The full process for this involves a few steps:
+There are many keywords available to the [`PolyData.plot()` method](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.plot.html). But to achieve finer control we chose different way: Creating a GeoVista/PyVista `Plotter` object. The full process for this involves a few steps:
 
 
 #### Create a pyvista.Plotter 
@@ -90,7 +90,7 @@ plotter = GeoPlotter()
 ```
 
 #### Call the plotter add_mesh function
-Next, we pass in the PolyData object `pv` to the [add_mesh](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html#add-mesh) function. For now we don't need the object which this passes back, so we just discard it. There are lots of possible other keywords, but none are required.
+Next, we pass in the PolyData object `pv` to the [add_mesh](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_mesh.html#add-mesh) function. For now we don't need the object which this passes back, so we just discard it. There are lots of possible keywords, but none are required.
 
 ```python
 _ = plotter.add_mesh(pv)
@@ -109,8 +109,6 @@ plotter.show()
 
 VTK/PyVista doesn't use plot "types". Instead, you add meshes to a plotter and can subsequently control the presentation. By default, `plotter.show()` opens an interactive window. You can instead generate static output. In a notebook, you can generate static output with `jupyter_backend='static'`, in a Python session with `interactive=False`.
 
-GeoVista can also produce more familiar 2D plots (described in a later section ...)
-
 
 <!-- #region -->
 ### Additional features
@@ -118,7 +116,7 @@ GeoVista can also produce more familiar 2D plots (described in a later section .
 The above hasn't yet actually added to what we can do with a simple`PolyData.plot()`. However, when you create your own GeoPlotter, you can do a lot more to control the view, e.g. using GeoPlotter methods [add_coastlines](https://github.com/bjlittle/geovista/blob/v0.1.1/src/geovista/geoplotter.py#L193-L215), [add_axes](https://docs.pyvista.org/api/plotting/_autosummary/pyvista.BasePlotter.add_axes.html#pyvista.BasePlotter.add_axes) and [add_base_layer](https://github.com/bjlittle/geovista/blob/v0.1.1/src/geovista/geoplotter.py#L122-L159). Coastlines and base_layer are GeoVista concepts, while axes are from PyVista. The `GeoPlotter` is simply a specialised version of a `PyVista.Plotter`.
 
 
-Have look into the source of the `demo_display_2d_xx_yy_data` routine in [display_demo_routines.py](./display_demo_routines.py). Another very useful resource is the GeoVista runnable [examples](https://github.com/bjlittle/geovista/tree/main/src/geovista/examples)
+Have look into the source of the `demo_display_2d_xx_yy_data` routine in [display_demo_routines.py](./display_demo_routines.py). Another very useful resource are the GeoVista runnable [examples](https://github.com/bjlittle/geovista/tree/main/src/geovista/examples)
 <!-- #endregion -->
 
 ### Controlling the 3D view
@@ -128,7 +126,7 @@ However, we can record and control the camera position of a plotter.
 
 ```python tags=[]
 viewpoint = plotter.camera_position
-print(viewpoint)
+#print(viewpoint)
 ```
 
 <!-- #region tags=[] -->
@@ -171,7 +169,7 @@ um_rh.rename('UM Rh data')
 
 ### Convert the UM cube to a PolyData and plot with GeoVista
 
-To plot the structured UM Iris cube we convert it to a PolyData object with the `pv_from_um_cube` routine availble from [pv_conversions.py](./pv_conversions.py). Using .plot() we can then display the strcutured UM data. This is still traditional "structured" data on its original UM lat-lon grid. You can see this clearly by zooming in on one pole where the cells get very narrow.
+To plot the structured UM Iris cube we convert it to a PolyData object with the `pv_from_um_cube` routine availble from [pv_conversions.py](./pv_conversions.py). Using .plot() we can then display the strcutured UM data. This is still traditional structured data on its original UM lat-lon grid. You can see this clearly by zooming in on one pole where the cells get very narrow.
 
 ```python tags=[]
 from pv_conversions import pv_from_um_cube
@@ -191,7 +189,7 @@ plt.show()
 
 ## Projected 2D plotting using GeoVista
 
-As Geovista is concerned with geolocation, it also understands map projections. This makes it possible to put data on map, producing the more familiar style of 2D plots. 
+As GeoVista is concerned with geolocation, it also understands map projections. This makes it possible to put data on map, producing the more familiar style of 2D plots. 
 
 The simplest solution is to specify a projection with the `crs` keyword in the GeoPlotter constructor call. The argument takes a [proj string](https://proj.org/usage/quickstart.html) to specify the [projection](https://proj.org/operations/projections/index.html). Here's an example, specifying an [Eckart-IV projection](https://proj.org/operations/projections/eck4.html):
 
@@ -204,7 +202,7 @@ plotter.view_xy()
 plotter.show(jupyter_backend='static')
 ```
 
-Note these "2D plots" are actually flat objects in a 3D space. If you make an interactive plot, you can rotate the panel. The support is still somewhat experimental. Possibly, not all projections will work correctly. Unfortunately, plotter.add_coastlines() does not yet work with projected plots.
+Note these "2D plots" are actually flat objects in a 3D space. If you make an interactive plot, you can rotate the panel. The support for projected plotting is still somewhat experimental. Possibly, not all projections will work correctly. Unfortunately, plotter.add_coastlines() does not yet work with projected plots.
 
 
 
