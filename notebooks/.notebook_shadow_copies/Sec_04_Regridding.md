@@ -22,9 +22,6 @@ from iris.coords import DimCoord
 from iris.cube import Cube
 ```
 
-## Example: Regridding LFRic data
-
-
 Suppose we need to compare data located on two different kinds of grids. One is located on a UM style "latlon" _grid_ and one is located on an LFRic style cubed sphere UGRID _mesh_. Data can be translated from the grid to the mesh and vice versa via _regridding_. We will demonstrate with the following files:
 
 ```python
@@ -33,12 +30,16 @@ from testdata_fetching import lfric_orography, um_orography
 # load LFRic orography (data on unstructured mesh)
 mesh_cube = lfric_orography()
 mesh_cube
+print(mesh_cube)
 ```
+
+## Example: Regridding LFRic data
 
 ```python
 # load UM orography (data on lonlat grid)
 grid_cube = um_orography()
 grid_cube
+grid_cube.coord('latitude')
 ```
 
 <!-- #region -->
