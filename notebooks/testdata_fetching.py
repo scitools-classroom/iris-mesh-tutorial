@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import iris
+import iris.experimental.ugrid
 iris.FUTURE.datum_support = True  # avoids some irritating warnings
 
 # Useful public variables
@@ -22,15 +23,18 @@ def um_all_datacubes():
     return iris.load(um_filepth)
 
 def um_orography():
-    cube = iris.load_cube(lfric_latlon_filepth, 'surface_altitude')
+    with iris.experimental.ugrid.PARSE_UGRID_ON_LOAD.context():
+        cube = iris.load_cube(lfric_latlon_filepth, 'surface_altitude')
     return cube
 
 def um_temp():
-    cube = iris.load_cube(um_filepth, 'air_temperature_0')
+    with iris.experimental.ugrid.PARSE_UGRID_ON_LOAD.context():
+        cube = iris.load_cube(um_filepth, 'air_temperature_0')
     return cube
 
 def um_rh_alltimes_3d():
-    return iris.load_cube(um_filepth, 'relative_humidity')
+    with iris.experimental.ugrid.PARSE_UGRID_ON_LOAD.context():
+        return iris.load_cube(um_filepth, 'relative_humidity')
 
 def um_rh_singletime_2d():
     cube = um_rh_alltimes_3d()
@@ -41,15 +45,18 @@ def lfric_all_datacubes():
     return cubes
 
 def lfric_orography():
-    cube = iris.load_cube(lfric_filepth, 'surface_altitude')
+    with iris.experimental.ugrid.PARSE_UGRID_ON_LOAD.context():
+        cube = iris.load_cube(lfric_filepth, 'surface_altitude')
     return cube[0]
 
 def lfric_temp():
-    cube = iris.load_cube(lfric_filepth, 'air_temperature')
+    with iris.experimental.ugrid.PARSE_UGRID_ON_LOAD.context():
+        cube = iris.load_cube(lfric_filepth, 'air_temperature')
     return cube
 
 def lfric_rh_alltimes_3d():
-    rh_cube = iris.load_cube(lfric_filepth, 'relative_humidity_at_screen_level')
+    with iris.experimental.ugrid.PARSE_UGRID_ON_LOAD.context():
+        rh_cube = iris.load_cube(lfric_filepth, 'relative_humidity_at_screen_level')
     return rh_cube
 
 def lfric_rh_singletime_2d():
