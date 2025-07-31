@@ -3,10 +3,8 @@
 from pathlib import Path
 
 import iris
+
 iris.FUTURE.datum_support = True  # avoids some irritating warnings
-
-from iris.experimental.ugrid.load import PARSE_UGRID_ON_LOAD
-
 
 # Useful public variables
 data_path = None
@@ -40,23 +38,19 @@ def um_rh_singletime_2d():
     return cube[0]
 
 def lfric_all_datacubes():
-    with PARSE_UGRID_ON_LOAD.context():
-        cubes = iris.load(lfric_filepth)
+    cubes = iris.load(lfric_filepth)
     return cubes
 
 def lfric_orography():
-    with PARSE_UGRID_ON_LOAD.context():
-        cube = iris.load_cube(lfric_filepth, 'surface_altitude')
+    cube = iris.load_cube(lfric_filepth, 'surface_altitude')
     return cube[0]
 
 def lfric_temp():
-    with PARSE_UGRID_ON_LOAD.context():
-        cube = iris.load_cube(lfric_filepth, 'air_temperature')
+    cube = iris.load_cube(lfric_filepth, 'air_temperature')
     return cube
 
 def lfric_rh_alltimes_3d():
-    with PARSE_UGRID_ON_LOAD.context():
-        rh_cube = iris.load_cube(lfric_filepth, 'relative_humidity_at_screen_level')
+    rh_cube = iris.load_cube(lfric_filepth, 'relative_humidity_at_screen_level')
     return rh_cube
 
 def lfric_rh_singletime_2d():
